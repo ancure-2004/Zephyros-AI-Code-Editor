@@ -55,7 +55,7 @@
 
 ## 📂 Current Project Structure  
 ```bash
-velora/
+Zephyros-AI-Code-Editor/
 ├── Backend/
 │   ├── app.js
 │   ├── controllers/
