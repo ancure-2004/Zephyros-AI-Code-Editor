@@ -25,7 +25,7 @@ export default function LoginPage() {
 				console.log(res.data);
 				localStorage.setItem('token', res.data.token)
 				setUser(res.data.user)
-				navigate("/");
+				navigate("/projects");
 			})
 			.catch((err) => {
 				console.log(err.response.data);

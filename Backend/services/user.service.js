@@ -17,3 +17,15 @@ export const createUser = async ({
 
     return user;
 };
+
+export const getAllUsers = async ({ userId }) => {
+    try {
+        const users = await userModel.find({
+            _id: { $ne: userId }
+        }); // Exclude password field
+        return users;
+        
+    } catch (error) {
+        throw error;
+    }
+};
