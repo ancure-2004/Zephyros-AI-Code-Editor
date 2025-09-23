@@ -1,8 +1,15 @@
-import React, {useState, useEffect, useContext, useRef, use} from "react";
+import React, {
+	useState,
+	useEffect,
+	useContext,
+	useRef,
+	use,
+	createRef,
+} from "react";
 import {useNavigate, useLocation} from "react-router-dom";
 import axios from "../config/axios";
-import { initializeSocket, recieveMessage, sendMessage } from "../config/socket";
-import { UserContext } from "../context/user.context";
+import {initializeSocket, recieveMessage, sendMessage} from "../config/socket";
+import {UserContext} from "../context/user.context";
 
 const Project = () => {
 	const location = useLocation();
@@ -12,41 +19,43 @@ const Project = () => {
 	const [selectedUserId, setSelectedUserId] = useState([]);
 	const [project, setProject] = useState(location.state.project);
 	const [message, setMessage] = useState("");
+	const messageBox = createRef();
 
-	const { user } = useContext(UserContext);
+	const {user} = useContext(UserContext);
 
 	const [users, setUsers] = useState([]);
 
 	useEffect(() => {
-
 		initializeSocket(project._id);
 
-		recieveMessage('project-message', (data) => {
-			console.log(data);
-		})
-		
-
-		axios.get(`/projects/get-project/${location.state.project._id}`).then((res) => {
-			setProject(res.data.project);
-		}).catch((err) => {
-			console.log(err);
+		recieveMessage("project-message", (data) => {
+			// console.log(data);
+			appendIncomingMessage(data);
 		});
 
+		axios
+			.get(`/projects/get-project/${location.state.project._id}`)
+			.then((res) => {
+				setProject(res.data.project);
+			})
+			.catch((err) => {
+				console.log(err);
+			});
 
 		axios.get("/users/all").then((res) => {
 			setUsers(res.data.users);
 		});
-
 	}, []);
 
 	function send() {
+		// console.log(user);
 
-		console.log(user);
-
-		sendMessage('project-message', {
+		sendMessage("project-message", {
 			message,
-			sender: user._id,
+			sender: user,
 		});
+
+		appendOutgoingMessage(message);
 
 		setMessage("");
 	}
@@ -78,10 +87,68 @@ const Project = () => {
 			});
 	}
 
+	function appendIncomingMessage(messageObject) {
+		const messageBox = document.querySelector(".messages");
+
+		const message = document.createElement("div");
+
+		message.classList.add(
+			"message",
+			"max-w-56",
+			"flex",
+			"flex-col",
+			"p-2",
+			"bg-slate-50",
+			"w-fit",
+			"rounded-md",
+			"mt-2"
+		);
+		message.innerHTML = `
+			<small class='opacity-65 text-xs'>${user.email}</small>
+			<p class='text-sm'>${messageObject.message}</p>
+		`;
+
+		messageBox.appendChild(message);
+
+		scrollToBottom();
+	}
+
+	function appendOutgoingMessage(message) {
+		const messageBox = document.querySelector(".messages");
+
+		const newMessage = document.createElement("div");
+
+		newMessage.classList.add(
+			"message",
+			"ml-auto",
+			"max-w-56",
+			"flex",
+			"flex-col",
+			"p-2",
+			"bg-slate-50",
+			"w-fit",
+			"rounded-md",
+			"mt-2",
+			"self-end"
+		);
+
+		newMessage.innerHTML = `
+			<small class='opacity-65 text-xs'>${user.email}</small>
+			<p class='text-sm'>${message}</p>
+		`;
+
+		messageBox.appendChild(newMessage);
+
+		scrollToBottom();
+	}
+
+	function scrollToBottom() {
+		messageBox.current.scrollTop = messageBox.current.scrollHeight;
+	}
+
 	return (
 		<main className="h-screen w-screen flex">
 			<section className="left relative flex flex-col h-screen min-w-96 bg-slate-300">
-
 				<header className="flex justify-between items-center p-2 px-4 w-full bg-slate-100 absolute z-10 top-0">
 					<button className="flex gap-2" onClick={() => setIsModalOpen(true)}>
 						<i className="ri-add-fill mr-1"></i>
@@ -96,6 +163,14 @@ const Project = () => {
 				</header>
 
 				<div className="conversation-area pt-14 pb-10 flex-grow flex flex-col h-full relative">
+					<div
+						ref={messageBox}
+						style={{scrollBehavior: "smooth"}}
+						className="messages overflow-auto px-4 pb-4 flex-grow h-full scrollbar-hide"
+					>
+						{/* Messages will be appended here */}
+					</div>
+
 					<div className="inputField w-full flex absolute bottom-0 ">
 						<input
 							value={message}
@@ -132,9 +207,10 @@ const Project = () => {
 						{project.users &&
 							project.users.map((user) => {
 								return (
-									<div 
+									<div
 										key={user.id}
-										className="user cursor-pointer hover:bg-slate-200 p-2 flex gap-2 items-center">
+										className="user cursor-pointer hover:bg-slate-200 p-2 flex gap-2 items-center"
+									>
 										<div className="aspect-square rounded-full w-fit h-fit flex items-center justify-center p-5 text-white bg-slate-600">
 											<i className="ri-user-fill absolute text-small"></i>
 										</div>
@@ -144,7 +220,6 @@ const Project = () => {
 							})}
 					</div>
 				</div>
-
 			</section>
 
 			{isModalOpen && (
