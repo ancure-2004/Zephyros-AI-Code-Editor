@@ -1,13 +1,17 @@
-import React from "react";
+import React, { use, useEffect } from "react";
 import { useState, useContext } from "react";
 import { UserContext } from "../context/user.context";
 import axios from "../config/axios";
+import { useNavigate } from "react-router-dom";
 
 const Projects = () => {
 	const { user } = useContext(UserContext);
 
 	const [isModalOpen, setIsModalOpen] = useState(false);
     const [projectName, setProjectName] = useState("");
+    const [projects, setProjects] = useState([]);
+
+    const navigate = useNavigate();
 
 	function createProject(e) {
         e.preventDefault();
@@ -24,6 +28,16 @@ const Projects = () => {
         console.log({projectName});
 	}
 
+    useEffect(() => {
+        axios.get('/projects/all').then((res) => {
+            // console.log(res.data);
+            setProjects(res.data);
+        }).catch((err) => {
+            console.log(err);
+        });
+
+    }, []);
+
 	return (
 		<main className="p-4">
 			<div className="projects">
@@ -34,6 +48,20 @@ const Projects = () => {
 					Create New Project
 				</button>
 			</div>
+
+            {
+                projects.map((project) => (
+                    <div
+                        key={project._id}
+                        className="border-2 p-4 m-3 bg-white hover:bg-gray-400 rounded cursor-pointer"
+                        onClick={ () => navigate(`/project`, {
+                            state: { project }
+                        }) }
+                    >
+                        <h3 className="text-lg font-semibold">{project.name}</h3>
+                    </div>
+                ))
+            }
 
             {isModalOpen && (
                 <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">

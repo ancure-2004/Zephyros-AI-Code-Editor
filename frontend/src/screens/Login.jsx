@@ -22,7 +22,6 @@ export default function LoginPage() {
 				password,
 			})
 			.then((res) => {
-				console.log(res.data);
 				localStorage.setItem('token', res.data.token)
 				setUser(res.data.user)
 				navigate("/projects");

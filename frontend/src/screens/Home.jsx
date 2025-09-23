@@ -10,7 +10,7 @@ import {
 	Github,
 	Play,
 } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link } from "react-router-dom"; 
 
 export default function ZephyrosHome() {
 	const [scrollY, setScrollY] = useState(0);
