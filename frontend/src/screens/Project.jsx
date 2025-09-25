@@ -11,6 +11,7 @@ import axios from "../config/axios";
 import {initializeSocket, recieveMessage, sendMessage} from "../config/socket";
 import {UserContext} from "../context/user.context";
 import Markdown from "markdown-to-jsx";
+import hljs from "highlight.js";
 
 function SyntaxHighlightedCode(props) {
 	const ref = useRef(null);
@@ -46,20 +47,20 @@ const Project = () => {
 	const [messages, setMessages] = useState([]);
 	const [users, setUsers] = useState([]);
 
-	const [fileTree, setFileTree] = useState({
-		"app.js":{
-			content: `const express = require('express);`
-		},
-		"package.json":{
-			content: `{"name": "temp server"}`
-		}
-	});
+	const [fileTree, setFileTree] = useState({});
 
 	useEffect(() => {
 		initializeSocket(project._id);
 
 		recieveMessage("project-message", (data) => {
-			// console.log(data);
+			// console.log(JSON.parse(data.message));
+
+			const message = JSON.parse(data.message);
+
+			if (message.fileTree) {
+				setFileTree(message.fileTree);
+			}
+
 			setMessages((prevMessages) => [...prevMessages, data]);
 		});
 
@@ -78,11 +79,10 @@ const Project = () => {
 	}, []);
 
 	function writeAImessage(message) {
-
 		const messageObject = JSON.parse(message);
 
 		// console.log(messageObject);
-		
+
 		return (
 			<div className="overflow-auto bg-slate-950 text-white p-2 rounded-sm">
 				<Markdown
@@ -143,7 +143,7 @@ const Project = () => {
 
 	return (
 		<main className="h-screen w-screen flex">
-			<section className="left relative flex flex-col h-screen min-w-96 bg-slate-300">
+			<section className="left relative flex flex-col h-screen min-w-86 bg-slate-300">
 				<header className="flex justify-between items-center p-2 px-4 w-full bg-slate-100 absolute z-10 top-0">
 					<button className="flex gap-2" onClick={() => setIsModalOpen(true)}>
 						<i className="ri-add-fill mr-1"></i>
@@ -237,57 +237,74 @@ const Project = () => {
 			<section className="right bg-red-50 flex-grow h-full flex">
 				<div className="explorer h-full max-w-64 min-w-52 bg-slate-400 ">
 					<div className="file-tree cursor-pointer w-full">
-						{
-							Object.keys(fileTree).map((file, index) => (
-								<button
-									onClick={() => {
-										setCurrentFile(file)
-										setOpenFiles([...new Set([...openFiles, file])])
-									}}
-									className="tree-element px-4 py-2 flex items-center gap-2 bg-slate-200 w-full">
-									<p className=" font-semibold text-lg">{file}</p>
-								</button>
-							))
-						}
+						{Object.keys(fileTree).map((file, index) => (
+							<button
+								onClick={() => {
+									setCurrentFile(file);
+									setOpenFiles([...new Set([...openFiles, file])]);
+								}}
+								className="tree-element px-4 py-2 flex items-center gap-2 bg-slate-200 w-full"
+							>
+								<p className=" font-semibold text-lg">{file}</p>
+							</button>
+						))}
 					</div>
 				</div>
-				
-				{currentFile && (
-					<div className="code-editor flex flex-col flex-grow h-full">
 
+				{currentFile && (
+					<div className="code-editor flex flex-col flex-grow h-full shrink">
 						<div className="top flex">
-							{
-								openFiles.map((file, index) => (
-									<button
-										onClick={() => setCurrentFile(file)}
-										className={`open-file cursor-pointer p-2 px-4 flex items-center w-fit gap-2 bg-slate-300 ${currentFile === file ? 'bg-slate-400' : ''}`}
-									>
-										<p className="font-semibold text-lg">{file}</p>
-									</button>
-								))
-							}
+							{openFiles.map((file, index) => (
+								<button
+									onClick={() => setCurrentFile(file)}
+									className={`open-file cursor-pointer p-2 px-4 flex items-center w-fit gap-2 bg-slate-300 ${
+										currentFile === file ? "bg-slate-400" : ""
+									}`}
+								>
+									<p className="font-semibold text-lg">{file}</p>
+								</button>
+							))}
 						</div>
 
-						<div className="bottom flex flex-grow">
+						<div className="bottom flex flex-grow max-w-full shrink overflow-auto">
 							{fileTree[currentFile] && (
-								<textarea
-									value={fileTree[ currentFile ].content}
-									onChange={(e) => {
-										setFileTree({
-											...fileTree,
-											[currentFile]:{
-												content: e.target.value
-											}
-										})
-									}}
-									className="w-full h-full p-4 bg-slate-200"
-								></textarea>
+								<div className="code-editor-area h-full overflow-auto flex-grow bg-slate-50">
+									<pre className="hljs h-full">
+										<code
+											className="hljs h-full outline-none"
+											contentEditable
+											suppressContentEditableWarning
+											onBlur={(e) => {
+												const updatedContent = e.target.innerText;
+												const ft = {
+													...fileTree,
+													[currentFile]: {
+														file: {
+															contents: updatedContent,
+														},
+													},
+												};
+												setFileTree(ft);
+												saveFileTree(ft);
+											}}
+											dangerouslySetInnerHTML={{
+												__html: hljs.highlight(
+													"javascript",
+													fileTree[currentFile].file.contents
+												).value,
+											}}
+											style={{
+												whiteSpace: "pre-wrap",
+												paddingBottom: "25rem",
+												counterSet: "line-numbering",
+											}}
+										/>
+									</pre>
+								</div>
 							)}
 						</div>
-
 					</div>
 				)}
-
 			</section>
 
 			{isModalOpen && (
