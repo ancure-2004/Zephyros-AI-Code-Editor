@@ -12,22 +12,20 @@ import {initializeSocket, recieveMessage, sendMessage} from "../config/socket";
 import {UserContext} from "../context/user.context";
 import Markdown from "markdown-to-jsx";
 
-
 function SyntaxHighlightedCode(props) {
-    const ref = useRef(null)
+	const ref = useRef(null);
 
-    React.useEffect(() => {
-        if (ref.current && props.className?.includes('lang-') && window.hljs) {
-            window.hljs.highlightElement(ref.current)
+	React.useEffect(() => {
+		if (ref.current && props.className?.includes("lang-") && window.hljs) {
+			window.hljs.highlightElement(ref.current);
 
-            // hljs won't reprocess the element unless this attribute is removed
-            ref.current.removeAttribute('data-highlighted')
-        }
-    }, [ props.className, props.children ])
+			// hljs won't reprocess the element unless this attribute is removed
+			ref.current.removeAttribute("data-highlighted");
+		}
+	}, [props.className, props.children]);
 
-    return <code {...props} ref={ref} />
+	return <code {...props} ref={ref} />;
 }
-
 
 const Project = () => {
 	const location = useLocation();
@@ -38,12 +36,24 @@ const Project = () => {
 	const [project, setProject] = useState(location.state.project);
 	const [message, setMessage] = useState("");
 
+	const [currentFile, setCurrentFile] = useState(null);
+	const [openFiles, setOpenFiles] = useState([]);
+
 	const messageBox = createRef();
 
 	const {user} = useContext(UserContext);
 
 	const [messages, setMessages] = useState([]);
 	const [users, setUsers] = useState([]);
+
+	const [fileTree, setFileTree] = useState({
+		"app.js":{
+			content: `const express = require('express);`
+		},
+		"package.json":{
+			content: `{"name": "temp server"}`
+		}
+	});
 
 	useEffect(() => {
 		initializeSocket(project._id);
@@ -66,6 +76,26 @@ const Project = () => {
 			setUsers(res.data.users);
 		});
 	}, []);
+
+	function writeAImessage(message) {
+
+		const messageObject = JSON.parse(message);
+
+		// console.log(messageObject);
+		
+		return (
+			<div className="overflow-auto bg-slate-950 text-white p-2 rounded-sm">
+				<Markdown
+					children={messageObject.text}
+					options={{
+						overrides: {
+							code: SyntaxHighlightedCode,
+						},
+					}}
+				/>
+			</div>
+		);
+	}
 
 	function send() {
 		// console.log(user);
@@ -144,16 +174,7 @@ const Project = () => {
 								<small className="opacity-65 text-xs">{msg.sender.email}</small>
 								<div className="text-sm">
 									{msg.sender._id === "ai" ? (
-										<div className="overflow-auto bg-slate-950 text-white p-2 rounded-sm">
-											<Markdown
-												children={msg.message}
-												options={{
-													overrides: {
-														code: SyntaxHighlightedCode,
-													},
-												}}
-											/>
-										</div>
+										writeAImessage(msg.message)
 									) : (
 										<p>{msg.message}</p>
 									)}
@@ -211,6 +232,62 @@ const Project = () => {
 							})}
 					</div>
 				</div>
+			</section>
+
+			<section className="right bg-red-50 flex-grow h-full flex">
+				<div className="explorer h-full max-w-64 min-w-52 bg-slate-400 ">
+					<div className="file-tree cursor-pointer w-full">
+						{
+							Object.keys(fileTree).map((file, index) => (
+								<button
+									onClick={() => {
+										setCurrentFile(file)
+										setOpenFiles([...new Set([...openFiles, file])])
+									}}
+									className="tree-element px-4 py-2 flex items-center gap-2 bg-slate-200 w-full">
+									<p className=" font-semibold text-lg">{file}</p>
+								</button>
+							))
+						}
+					</div>
+				</div>
+				
+				{currentFile && (
+					<div className="code-editor flex flex-col flex-grow h-full">
+
+						<div className="top flex">
+							{
+								openFiles.map((file, index) => (
+									<button
+										onClick={() => setCurrentFile(file)}
+										className={`open-file cursor-pointer p-2 px-4 flex items-center w-fit gap-2 bg-slate-300 ${currentFile === file ? 'bg-slate-400' : ''}`}
+									>
+										<p className="font-semibold text-lg">{file}</p>
+									</button>
+								))
+							}
+						</div>
+
+						<div className="bottom flex flex-grow">
+							{fileTree[currentFile] && (
+								<textarea
+									value={fileTree[ currentFile ].content}
+									onChange={(e) => {
+										setFileTree({
+											...fileTree,
+											[currentFile]:{
+												content: e.target.value
+											}
+										})
+									}}
+									className="w-full h-full p-4 bg-slate-200"
+								></textarea>
+							)}
+						</div>
+
+					</div>
+				)}
+
 			</section>
 
 			{isModalOpen && (
