@@ -14,7 +14,7 @@ import Markdown from "markdown-to-jsx";
 import hljs from "highlight.js";
 
 import {getWebContainer} from "../config/webContainer";
-import { Fetch } from "socket.io-client";
+import {Fetch} from "socket.io-client";
 
 function SyntaxHighlightedCode(props) {
 	const ref = useRef(null);
@@ -85,7 +85,7 @@ const Project = () => {
 			.get(`/projects/get-project/${location.state.project._id}`)
 			.then((res) => {
 				setProject(res.data.project);
-				setFileTree(res.data.project.fileTree)
+				setFileTree(res.data.project.fileTree);
 			})
 			.catch((err) => {
 				console.log(err);
@@ -156,14 +156,17 @@ const Project = () => {
 	}
 
 	function saveFileTree(ft) {
-		axios.put('/projects/update-file-tree', {
-			projectId : project._id,
-			fileTree : ft
-		}).then(res => {
-			console.log(res.data)
-		}).catch(err=> {
-			console.log(err);
-		})
+		axios
+			.put("/projects/update-file-tree", {
+				projectId: project._id,
+				fileTree: ft,
+			})
+			.then((res) => {
+				console.log(res.data);
+			})
+			.catch((err) => {
+				console.log(err);
+			});
 	}
 
 	function scrollToBottom() {
@@ -264,21 +267,23 @@ const Project = () => {
 			</section>
 
 			<section className="right bg-red-50 flex-grow h-full flex">
-				<div className="explorer h-full max-w-64 min-w-52 bg-slate-400 ">
-					<div className="file-tree cursor-pointer w-full">
-						{Object.keys(fileTree).map((file, index) => (
-							<button
-								onClick={() => {
-									setCurrentFile(file);
-									setOpenFiles([...new Set([...openFiles, file])]);
-								}}
-								className="tree-element px-4 py-2 flex items-center gap-2 bg-slate-200 w-full"
-							>
-								<p className=" font-semibold text-lg">{file}</p>
-							</button>
-						))}
+				{fileTree && (
+					<div className="explorer h-full max-w-64 min-w-52 bg-slate-400 ">
+						<div className="file-tree cursor-pointer w-full">
+							{Object.keys(fileTree).map((file) => (
+								<button
+									onClick={() => {
+										setCurrentFile(file);
+										setOpenFiles([...new Set([...openFiles, file])]);
+									}}
+									className="tree-element px-4 py-2 flex items-center gap-2 bg-slate-200 w-full"
+								>
+									<p className=" font-semibold text-lg">{file}</p>
+								</button>
+							))}
+						</div>
 					</div>
-				</div>
+				)}
 
 				<div className="code-editor flex flex-col flex-grow h-full shrink">
 					<div className="top flex justify-between w-full">
@@ -312,7 +317,7 @@ const Project = () => {
 										})
 									);
 
-									if(runProcess) {
+									if (runProcess) {
 										runProcess.kill();
 									}
 
@@ -330,11 +335,10 @@ const Project = () => {
 
 									setRunProcess(tempRunProcess);
 
-									webContainer.on('server-ready', (port, url) => {
-										console.log(port, url)
-										setIframeUrl(url)
-									})
-
+									webContainer.on("server-ready", (port, url) => {
+										console.log(port, url);
+										setIframeUrl(url);
+									});
 								}}
 								className="p-2 px-4 bg-slate-300 text-white"
 							>
@@ -344,7 +348,7 @@ const Project = () => {
 					</div>
 
 					<div className="bottom flex flex-grow max-w-full shrink overflow-auto">
-						{fileTree[currentFile] && (
+						{fileTree && currentFile && fileTree[currentFile] && (
 							<div className="code-editor-area h-full overflow-auto flex-grow bg-slate-50">
 								<pre className="hljs h-full">
 									<code
@@ -395,7 +399,6 @@ const Project = () => {
 						<iframe src={iframeUrl} className="w-full h-full"></iframe>
 					</div>
 				)}
-
 			</section>
 
 			{isModalOpen && (
