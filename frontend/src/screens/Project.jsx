@@ -1,10 +1,4 @@
-import React, {
-	useState,
-	useEffect,
-	useContext,
-	useRef,
-	createRef,
-} from "react";
+import React, {useState, useEffect, useContext, useRef, createRef} from "react";
 import {useNavigate, useLocation} from "react-router-dom";
 
 import axios from "../config/axios";
@@ -106,7 +100,6 @@ const Project = () => {
 	}, []);
 
 	function writeAImessage(message) {
-
 		const messageObject = JSON.parse(message);
 
 		// console.log(messageObject);
@@ -180,47 +173,63 @@ const Project = () => {
 			});
 	}
 
+	useEffect(() => {
+		scrollToBottom();
+	}, [messages]); // runs whenever messages update
+
 	function scrollToBottom() {
-		messageBox.current.scrollTop = messageBox.current.scrollHeight;
+		if (messageBox.current) {
+			messageBox.current.scrollTop = messageBox.current.scrollHeight;
+		}
 	}
 
 	return (
 		<main className="h-screen w-screen flex">
 			<section className="left relative flex flex-col h-screen min-w-86 bg-slate-300">
-				< ChatArea
-					project={project} users={users}
-					messages={messages} message={message} setMessage={setMessage} messageBox={messageBox}
-					writeAImessage={writeAImessage} send={send}
-					handleUserClick={handleUserClick} addCollaborators={addCollaborators}
+				<ChatArea
+					project={project}
+					users={users}
+					messages={messages}
+					message={message}
+					setMessage={setMessage}
+					messageBox={messageBox}
+					writeAImessage={writeAImessage}
+					send={send}
+					handleUserClick={handleUserClick}
+					addCollaborators={addCollaborators}
 					selectedUserId={selectedUserId}
 				/>
 			</section>
 
 			<section className="right bg-red-50 flex-grow h-full flex">
 				{fileTree && (
-					<FileTree 
+					<FileTree
 						fileTree={fileTree}
-						openFiles={openFiles} setOpenFiles={setOpenFiles}
-						currentFile={currentFile} setCurrentFile={setCurrentFile}		
+						openFiles={openFiles}
+						setOpenFiles={setOpenFiles}
+						currentFile={currentFile}
+						setCurrentFile={setCurrentFile}
 					/>
 				)}
 
 				<CodeEditor
-					openFiles={openFiles} currentFile={currentFile} setCurrentFile={setCurrentFile}
-					webContainer={webContainer} setWebContainer={setWebContainer}
-					fileTree={fileTree} setFileTree={setFileTree}
-					runProcess={runProcess} setRunProcess={setRunProcess}
-					saveFileTree={saveFileTree} setIframeUrl={setIframeUrl}
+					openFiles={openFiles}
+					currentFile={currentFile}
+					setCurrentFile={setCurrentFile}
+					webContainer={webContainer}
+					setWebContainer={setWebContainer}
+					fileTree={fileTree}
+					setFileTree={setFileTree}
+					runProcess={runProcess}
+					setRunProcess={setRunProcess}
+					saveFileTree={saveFileTree}
+					setIframeUrl={setIframeUrl}
 				/>
 
 				{iframeUrl && webContainer && (
-					<IFrame 
-						iframeUrl={iframeUrl}
-						setIframeUrl={setIframeUrl}
-					/>
+					<IFrame iframeUrl={iframeUrl} setIframeUrl={setIframeUrl} />
 				)}
 			</section>
-
 		</main>
 	);
 };
