@@ -34,6 +34,7 @@ const Project = () => {
 
 	const [selectedUserId, setSelectedUserId] = useState([]);
 	const [project, setProject] = useState(location?.state?.project);
+	const [isModalOpen, setIsModalOpen] = useState(false);
 
 	const [message, setMessage] = useState("");
 
@@ -53,7 +54,7 @@ const Project = () => {
 	const [runProcess, setRunProcess] = useState(null);
 
 	useEffect(() => {
-		initializeSocket(project._id);
+		initializeSocket(project?._id);
 
 		if (!webContainer) {
 			getWebContainer().then((container) => {
@@ -85,7 +86,7 @@ const Project = () => {
 		});
 
 		axios
-			.get(`/projects/get-project/${location.state.project._id}`)
+			.get(`/projects/get-project/${location.state?.project._id}`)
 			.then((res) => {
 				setProject(res.data.project);
 				setFileTree(res.data.project.fileTree);
@@ -198,6 +199,8 @@ const Project = () => {
 					handleUserClick={handleUserClick}
 					addCollaborators={addCollaborators}
 					selectedUserId={selectedUserId}
+					isModalOpen={isModalOpen}
+					setIsModalOpen={setIsModalOpen}
 				/>
 			</section>
 
