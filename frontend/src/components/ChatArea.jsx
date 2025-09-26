@@ -12,6 +12,7 @@ const ChatArea = ({
 	users,
 	handleUserClick,
 	addCollaborators,
+	selectedUserId
 }) => {
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [isSidePanelOpen, setIsSidePanelOpen] = useState(false);
