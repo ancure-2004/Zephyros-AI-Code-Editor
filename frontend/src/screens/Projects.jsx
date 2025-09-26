@@ -419,7 +419,7 @@ const Projects = () => {
 						<p className="text-gray-600 font-mono text-sm mb-4">
 							Initialize your first repository
 						</p>
-						<code className="text-xs text-blue-400 bg-gray-950 px-3 py-1 rounded border border-gray-800">
+						<code onClick={() => setIsModalOpen(true)} className="text-xs cursor-pointer text-blue-400 bg-gray-950 px-3 py-1 rounded border border-gray-800">
 							git init my-project
 						</code>
 					</div>
