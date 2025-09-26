@@ -37,7 +37,7 @@ const Project = () => {
 	const [isSidePanelOpen, setIsSidePanelOpen] = useState(false);
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [selectedUserId, setSelectedUserId] = useState([]);
-	const [project, setProject] = useState(location.state.project);
+	const [project, setProject] = useState(location?.state?.project);
 	const [message, setMessage] = useState("");
 
 	const [currentFile, setCurrentFile] = useState(null);
@@ -308,42 +308,75 @@ const Project = () => {
 						<div className="actions flex gap-2">
 							<button
 								onClick={async () => {
-									await webContainer?.mount(fileTree);
+									try {
+										if (!webContainer) {
+											console.warn("webContainer not ready yet");
+											return;
+										}
 
-									const installProcess = await webContainer?.spawn("npm", [
-										"install",
-									]);
+										await webContainer.mount(fileTree);
 
-									installProcess.output.pipeTo(
-										new WritableStream({
-											write(chunk) {
-												console.log(chunk);
-											},
-										})
-									);
+										// npm install
+										const installProcess = await webContainer.spawn("npm", [
+											"install",
+										]);
+										if (!installProcess || !installProcess.output) {
+											console.warn(
+												"installProcess missing or has no output",
+												installProcess
+											);
+										} else {
+											installProcess.output
+												.pipeTo(
+													new WritableStream({
+														write(chunk) {
+															console.log("install:", chunk);
+														},
+													})
+												)
+												.catch((e) => console.warn("install pipeTo error", e));
+										}
 
-									if (runProcess) {
-										runProcess.kill();
+										// kill previous if exists
+										if (runProcess) {
+											try {
+												runProcess.kill();
+											} catch (e) {
+												console.warn("failed to kill runProcess", e);
+											}
+										}
+
+										// npm start
+										const tempRunProcess = await webContainer.spawn("npm", [
+											"start",
+										]);
+										if (!tempRunProcess || !tempRunProcess.output) {
+											console.warn(
+												"startProcess missing or has no output",
+												tempRunProcess
+											);
+										} else {
+											tempRunProcess.output
+												.pipeTo(
+													new WritableStream({
+														write(chunk) {
+															console.log("start:", chunk);
+														},
+													})
+												)
+												.catch((e) => console.warn("start pipeTo error", e));
+										}
+
+										setRunProcess(tempRunProcess);
+
+										webContainer.on("server-ready", (port, url) => {
+											console.log("server-ready", port, url);
+											setIframeUrl(url);
+										});
+									} catch (err) {
+										console.error("Run handler error:", err);
+										alert("Run failed — see console for details");
 									}
-
-									let tempRunProcess = await webContainer?.spawn("npm", [
-										"start",
-									]);
-
-									tempRunProcess.output.pipeTo(
-										new WritableStream({
-											write(chunk) {
-												console.log(chunk);
-											},
-										})
-									);
-
-									setRunProcess(tempRunProcess);
-
-									webContainer.on("server-ready", (port, url) => {
-										console.log(port, url);
-										setIframeUrl(url);
-									});
 								}}
 								className="p-2 px-4 bg-slate-300 text-white"
 							>
