@@ -70,15 +70,20 @@ const Project = () => {
 		recieveMessage("project-message", (data) => {
 			// console.log(JSON.parse(data.message));
 
-			const message = JSON.parse(data.message);
+			if (data.sender._id == "ai") {
+				const message = JSON.parse(data.message);
 
-			webContainer?.mount(message.fileTree);
+				console.log(message);
 
-			if (message.fileTree) {
-				setFileTree(message.fileTree);
+				webContainer?.mount(message.fileTree);
+
+				if (message.fileTree) {
+					setFileTree(message.fileTree || {});
+				}
+				setMessages((prevMessages) => [...prevMessages, data]); // Update messages state
+			} else {
+				setMessages((prevMessages) => [...prevMessages, data]); // Update messages state
 			}
-
-			setMessages((prevMessages) => [...prevMessages, data]);
 		});
 
 		axios
