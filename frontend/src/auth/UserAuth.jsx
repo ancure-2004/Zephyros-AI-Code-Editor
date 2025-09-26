@@ -1,35 +1,35 @@
-import React, {useContext, useEffect, useState} from "react";
-import {UserContext} from "../context/user.context";
-import {useNavigate} from "react-router-dom";
+import React, { useContext, useEffect, useState } from "react";
+import { UserContext } from "../context/user.context";
+import { useNavigate } from "react-router-dom";
 
-const UserAuth = ({children}) => {
-	const {user} = useContext(UserContext);
-	const navigate = useNavigate();
+const UserAuth = ({ children }) => {
+  const { user } = useContext(UserContext);
+  const navigate = useNavigate();
 
-	const [loading, setLoading] = useState(true);
-	const token = localStorage.getItem("token");
+  const [loading, setLoading] = useState(true);
 
+  useEffect(() => {
+    // Check localStorage for persisted user if context is empty
+    if (!user) {
+      const savedUser = localStorage.getItem("user");
+      if (savedUser) {
+        // optional: update context if needed
+        // setUser(JSON.parse(savedUser)); 
+        setLoading(false);
+        return;
+      }
+      // No user found, redirect
+      navigate("/login");
+    } else {
+      setLoading(false);
+    }
+  }, [user, navigate]);
 
-	useEffect(() => {
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
-        if (user) {
-	    	setLoading(false);
-	    }
-
-		if (!token) {
-			navigate("/login");
-		}
-
-		if (!user) {
-			navigate("/login");
-		}
-	}, [token, user]);
-
-	if (loading) {
-		return <div>Loading...</div>;
-	}
-
-	return <>{children}</>;
+  return <>{children}</>;
 };
 
 export default UserAuth;
