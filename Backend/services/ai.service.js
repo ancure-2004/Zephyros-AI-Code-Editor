@@ -102,6 +102,7 @@ export async function generateResult(prompt) {
        </example>
     
  IMPORTANT : don't use file name like routes/index.js
+ IMPORTANT : Do not give the JSON response in the contents
     `,
         }
     ],
