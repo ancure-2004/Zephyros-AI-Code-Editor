@@ -6,3 +6,7 @@
 .message-box::-webkit-scrollbar {
   display: none;
 }
+
+.bottom::-webkit-scrollbar{
+  display: none;
+}
