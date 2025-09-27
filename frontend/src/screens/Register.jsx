@@ -1,10 +1,10 @@
 import React, {useState, useContext} from "react";
-import {Github, ArrowLeft} from "lucide-react";
+import {Github, ArrowLeft, Eye, EyeOff} from "lucide-react";
 import {Link, useNavigate} from "react-router-dom";
 import axios from "../config/axios";
 import {UserContext} from "../context/user.context";
 
-export default function LoginPage() {
+export default function RegisterPage() {
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
 	const [showPassword, setShowPassword] = useState(false);
@@ -34,169 +34,254 @@ export default function LoginPage() {
 	}
 
 	return (
-		<div className="min-h-screen flex flex-col md:flex-row bg-black text-white">
+		<div
+			className="h-screen bg-gray-950 text-[#cccccc] flex overflow-hidden animate-fadeIn"
+			style={{
+				background: `linear-gradient(135deg, rgb(5, 7, 25) 0%, rgb(0, 0, 0) 100%)`,
+			}}
+		>
 			{/* Left Side - Form */}
-			<div className="w-full md:w-1/2 flex flex-col justify-center px-6 md:px-20 py-10 md:py-0 relative">
+			<div className="w-full lg:w-1/2 flex flex-col justify-center px-6 sm:px-8 md:px-12 lg:px-16 relative h-screen animate-slideInLeft">
 				{/* Back Button */}
 				<Link
 					to="/"
-					className="absolute top-4 left-4 flex items-center text-gray-400 hover:text-white transition-colors duration-300 group"
+					className="absolute top-4 left-4 flex items-center text-[#858585] hover:text-[#cccccc] transition-all duration-300 group animate-fadeInDown"
 				>
 					<ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform duration-300" />
-					<span className="text-sm md:text-base">Back</span>
+					<span className="text-sm">Back</span>
 				</Link>
 
 				{/* Header */}
-				<div className="mb-6 animate-fade-in">
-					<div className="flex items-center mb-3">
-						<img
-							src="./logo.png"
-							alt="Zephyros Logo"
-							className="h-8 w-20 mr-2"
-						/>
-					</div>
-					<h1 className="text-2xl md:text-3xl font-bold mb-1">Welcome!</h1>
-				</div>
-
-				{/* Social Login */}
-				<div className="space-y-3 md:space-y-2.5 mb-4 animate-slide-up">
-					<button className="w-full flex items-center justify-center px-4 py-2.5 border border-gray-700 rounded-lg hover:bg-gray-900 transition-all duration-300 hover:scale-105 text-sm">
-						<svg className="w-4 h-4 mr-2.5" viewBox="0 0 24 24">
-							<path
-								fill="#4285F4"
-								d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-							/>
-							<path
-								fill="#34A853"
-								d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-							/>
-							<path
-								fill="#FBBC05"
-								d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-							/>
-							<path
-								fill="#EA4335"
-								d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-							/>
-						</svg>
-						Log in with Google
-					</button>
-
-					<button className="w-full flex items-center justify-center px-4 py-2.5 border border-gray-700 rounded-lg hover:bg-gray-900 transition-all duration-300 hover:scale-105 text-sm">
-						<Github className="w-4 h-4 mr-2.5" />
-						Log in with GitHub
-					</button>
-				</div>
-
-				<div className="flex items-center mb-4">
-					<div className="flex-1 border-t border-gray-700"></div>
-					<span className="px-1 text-gray-500 text-xs">OR</span>
-					<div className="flex-1 border-t border-gray-700"></div>
-				</div>
-
-				{/* Form */}
-				<form onSubmit={submitHandler} className="space-y-3">
-					<div className="flex flex-col md:flex-row gap-2">
-						<input
-							type="text"
-							value={firstname}
-							onChange={(e) => setFirstname(e.target.value)}
-							placeholder="First Name"
-							className="flex-1 px-3 py-1.5 bg-gray-900 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600 placeholder-gray-500 text-sm"
-						/>
-						<input
-							type="text"
-							value={lastname}
-							onChange={(e) => setLastname(e.target.value)}
-							placeholder="Last Name"
-							className="flex-1 px-3 py-1.5 bg-gray-900 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600 placeholder-gray-500 text-sm"
-						/>
+				<div className="max-w-sm mx-auto w-full">
+					<div className="mb-5 animate-slideUp">
+						<div className="flex items-center mb-3">
+							<img src="./logo.png" alt="Zephyros Logo" className="h-5 w-14 animate-pulse" />
+						</div>
+						<h1 className="text-lg font-bold text-[#cccccc] mb-2 animate-slideUp" style={{animationDelay: '0.1s'}}>
+							Create Account
+						</h1>
+						<p className="text-[#858585] text-xs animate-slideUp" style={{animationDelay: '0.2s'}}>Join and start coding</p>
 					</div>
 
-					<input
-						type="email"
-						value={email}
-						onChange={(e) => setEmail(e.target.value)}
-						placeholder="Email"
-						className="w-full px-3 py-1.5 bg-gray-900 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600 placeholder-gray-500 text-sm"
-					/>
-
-					<div className="relative">
-						<input
-							type={showPassword ? "text" : "password"}
-							value={password}
-							onChange={(e) => setPassword(e.target.value)}
-							placeholder="Password"
-							className="w-full px-3 py-1.5 bg-gray-900 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600 placeholder-gray-500 pr-10 text-sm"
-						/>
-						<button
-							type="button"
-							onClick={() => setShowPassword(!showPassword)}
-							className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-300"
-						>
-							{showPassword ? <span>🙈</span> : <span>👁️</span>}
+					{/* Social Buttons */}
+					<div className="space-y-3 mb-4 animate-slideUp" style={{animationDelay: '0.3s'}}>
+						<button className="w-full flex items-center justify-center px-4 py-2 bg-[#37373d] hover:bg-[#464647] border border-[#3c3c3c] rounded text-xs text-[#cccccc] transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-blue-500/20 transform">
+							<svg className="w-3 h-3 mr-2" viewBox="0 0 24 24">
+								<path
+									fill="#4285F4"
+									d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+								/>
+								<path
+									fill="#34A853"
+									d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+								/>
+								<path
+									fill="#FBBC05"
+									d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+								/>
+								<path
+									fill="#EA4335"
+									d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+								/>
+							</svg>
+							Google
+						</button>
+						<button className="w-full flex items-center justify-center px-4 py-2 bg-[#37373d] hover:bg-[#464647] border border-[#3c3c3c] rounded text-xs text-[#cccccc] transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-blue-500/20 transform">
+							<Github className="w-3 h-3 mr-2" />
+							GitHub
 						</button>
 					</div>
 
-					<button
-						type="submit"
-						className="w-full mt-3 bg-purple-600 hover:bg-purple-700 text-white font-medium py-2 px-4 rounded-lg transition-all duration-300 hover:scale-105 transform hover:shadow-lg hover:shadow-purple-600/25 text-sm"
-					>
-						Create Account
-					</button>
-				</form>
+					{/* Divider */}
+					<div className="flex items-center mb-4 animate-slideUp" style={{animationDelay: '0.4s'}}>
+						<div className="flex-1 border-t border-[#3c3c3c]"></div>
+						<span className="px-3 text-[#858585] text-xs">or</span>
+						<div className="flex-1 border-t border-[#3c3c3c]"></div>
+					</div>
 
-				<p className="text-center text-gray-400 text-xs mt-3">
-					Already have an account?{" "}
-					<a href="/login" className="text-purple-400 hover:text-purple-300">
-						Login
-					</a>
-				</p>
+					{/* Form */}
+					<form onSubmit={submitHandler} className="space-y-4 animate-slideUp" style={{animationDelay: '0.5s'}}>
+						{/* Name Fields */}
+						<div className="flex gap-3 transform transition-all duration-300 hover:translate-y-[-2px]">
+							<div className="flex-1">
+								<label className="block text-xs font-medium text-[#cccccc] mb-2">
+									First Name
+								</label>
+								<input
+									type="text"
+									value={firstname}
+									onChange={(e) => setFirstname(e.target.value)}
+									placeholder="First name"
+									className="w-full px-3 py-2 bg-[#3c3c3c] border border-[#464647] rounded text-[#cccccc] placeholder-[#858585] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-xs transition-all duration-300 focus:scale-105 focus:shadow-lg focus:shadow-blue-500/20"
+								/>
+							</div>
+							<div className="flex-1">
+								<label className="block text-xs font-medium text-[#cccccc] mb-2">
+									Last Name
+								</label>
+								<input
+									type="text"
+									value={lastname}
+									onChange={(e) => setLastname(e.target.value)}
+									placeholder="Last name"
+									className="w-full px-3 py-2 bg-[#3c3c3c] border border-[#464647] rounded text-[#cccccc] placeholder-[#858585] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-xs transition-all duration-300 focus:scale-105 focus:shadow-lg focus:shadow-blue-500/20"
+								/>
+							</div>
+						</div>
+
+						{/* Email Field */}
+						<div className="transform transition-all duration-300 hover:translate-y-[-2px]">
+							<label className="block text-xs font-medium text-[#cccccc] mb-2">
+								Email
+							</label>
+							<input
+								type="email"
+								value={email}
+								onChange={(e) => setEmail(e.target.value)}
+								placeholder="Enter your email"
+								className="w-full px-3 py-2 bg-[#3c3c3c] border border-[#464647] rounded text-[#cccccc] placeholder-[#858585] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-xs transition-all duration-300 focus:scale-105 focus:shadow-lg focus:shadow-blue-500/20"
+							/>
+						</div>
+
+						{/* Password Field */}
+						<div className="transform transition-all duration-300 hover:translate-y-[-2px]">
+							<label className="block text-xs font-medium text-[#cccccc] mb-2">
+								Password
+							</label>
+							<div className="relative">
+								<input
+									type={showPassword ? "text" : "password"}
+									value={password}
+									onChange={(e) => setPassword(e.target.value)}
+									placeholder="Create a password"
+									className="w-full px-3 py-2 bg-[#3c3c3c] border border-[#464647] rounded text-[#cccccc] placeholder-[#858585] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent pr-9 text-xs transition-all duration-300 focus:scale-105 focus:shadow-lg focus:shadow-blue-500/20"
+								/>
+								<button
+									type="button"
+									onClick={() => setShowPassword(!showPassword)}
+									className="absolute right-2.5 top-1/2 transform -translate-y-1/2 text-[#858585] hover:text-[#cccccc] transition-all duration-300 hover:scale-110"
+								>
+									{showPassword ? (
+										<EyeOff className="w-3 h-3" />
+									) : (
+										<Eye className="w-3 h-3" />
+									)}
+								</button>
+							</div>
+						</div>
+
+						<button
+							type="submit"
+							className="w-full bg-gray-800 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded transition-all duration-300 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 mt-5 transform hover:scale-105 hover:shadow-lg hover:shadow-gray-500/30 active:scale-95"
+						>
+							Create Account
+						</button>
+					</form>
+
+					{/* Footer */}
+					<div className="mt-5 text-center animate-slideUp" style={{animationDelay: '0.6s'}}>
+						<p className="text-[#858585] text-xs">
+							Already have an account?{" "}
+							<Link
+								to="/login"
+								className="text-blue-400 hover:text-blue-300 font-medium transition-all duration-300 hover:underline"
+							>
+								Sign in
+							</Link>
+						</p>
+					</div>
+				</div>
 			</div>
 
 			{/* Right Side - Image */}
-			<div className="hidden md:block w-1/2 relative">
+			<div className="hidden lg:block w-1/2 relative animate-slideInRight">
 				<img
 					src="./fc1e4bf3b1d22fd8416cbd243247f619.jpg"
-					alt="Login Illustration"
-					className="w-full h-full object-cover"
+					alt="Register Illustration"
+					className="w-screen h-screen object-cover"
 				/>
+				<div className="absolute inset-0 bg-gradient-to-l from-transparent to-gray-900/20 animate-fadeIn" style={{animationDelay: '0.8s'}}></div>
 			</div>
+
 			<style jsx>{`
-@keyframes fadeIn {
-from { opacity: 0; }
-to { opacity: 1; }
-}
+				@keyframes fadeIn {
+					from { opacity: 0; }
+					to { opacity: 1; }
+				}
 
-@keyframes slideUp {
-from { 
-opacity: 0; 
-transform: translateY(20px); 
-}
-to { 
-opacity: 1; 
-transform: translateY(0); 
-}
-}
+				@keyframes slideInLeft {
+					from { 
+						opacity: 0;
+						transform: translateX(-50px);
+					}
+					to { 
+						opacity: 1;
+						transform: translateX(0);
+					}
+				}
 
-@keyframes fadeInDelayed {
-0% { opacity: 0; }
-50% { opacity: 0; }
-100% { opacity: 1; }
-}
+				@keyframes slideInRight {
+					from { 
+						opacity: 0;
+						transform: translateX(50px);
+					}
+					to { 
+						opacity: 1;
+						transform: translateX(0);
+					}
+				}
 
-.animate-fade-in {
-animation: fadeIn 0.8s ease-out;
-}
+				@keyframes slideUp {
+					from { 
+						opacity: 0;
+						transform: translateY(20px);
+					}
+					to { 
+						opacity: 1;
+						transform: translateY(0);
+					}
+				}
 
-.animate-slide-up {
-animation: slideUp 0.8s ease-out 0.3s both;
-}
+				@keyframes fadeInDown {
+					from { 
+						opacity: 0;
+						transform: translateY(-20px);
+					}
+					to { 
+						opacity: 1;
+						transform: translateY(0);
+					}
+				}
 
-.animate-fade-in-delayed {
-animation: fadeInDelayed 1.5s ease-out;
-}
-`}</style>
+				.animate-fadeIn {
+					animation: fadeIn 1s ease-out;
+				}
+
+				.animate-slideInLeft {
+					animation: slideInLeft 0.8s ease-out;
+				}
+
+				.animate-slideInRight {
+					animation: slideInRight 0.8s ease-out;
+				}
+
+				.animate-slideUp {
+					animation: slideUp 0.6s ease-out both;
+				}
+
+				.animate-fadeInDown {
+					animation: fadeInDown 0.6s ease-out;
+				}
+
+				.animate-pulse {
+					animation: pulse 2s infinite;
+				}
+
+				@keyframes pulse {
+					0%, 100% { opacity: 1; }
+					50% { opacity: 0.7; }
+				}
+			`}</style>
 		</div>
 	);
 }
