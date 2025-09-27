@@ -13,6 +13,7 @@ import ChatArea from "../components/ChatArea";
 import CodeEditor from "../components/CodeEditor";
 import FileTree from "../components/FileTree";
 import IFrame from "../components/IFrame";
+import toast from "react-hot-toast";
 
 function SyntaxHighlightedCode(props) {
 	const ref = useRef(null);
@@ -182,6 +183,7 @@ const Project = () => {
 				setWebContainer(container);
 
 				console.log("container started");
+				toast.success("✅ Container started")
 			});
 		}
 
@@ -394,7 +396,7 @@ const Project = () => {
 				<div className="flex items-center gap-4">
 					<button 
 						onClick={() => navigate('/projects')}
-						className="flex items-center gap-2 hover:bg-[#37373d] px-2 py-1 rounded transition-colors"
+						className="flex items-center gap-2 hover:bg-[#37373d] px-2 py-1 cursor-pointer rounded transition-colors"
 					>
 						<div className="w-30 h-5 rounded flex items-center justify-center text-white font-bold text-xs">
 							<img  src="/logo.png" />
@@ -403,7 +405,7 @@ const Project = () => {
 					
 					<button
 						onClick={() => setIsFileTreeOpen(!isFileTreeOpen)}
-						className="p-1.5 hover:bg-gray-800 rounded transition-colors"
+						className="p-1.5 cursor-pointer hover:bg-gray-800 rounded transition-colors"
 						title="Toggle File Explorer"
 					>
 						<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
@@ -425,7 +427,7 @@ const Project = () => {
 							placeholder="Search files, symbols, commands..."
 							value={searchQuery}
 							onChange={(e) => setSearchQuery(e.target.value)}
-							className="w-full pl-8 pr-3 py-1 bg-gray-950 rounded text-sm text-[#cccccc] placeholder-[#858585] focus:bg-[#1e1e1e] focus:border-[#007acc] outline-none transition-colors"
+							className="w-full pl-8 pr-3 py-1 bg-gray-950 rounded text-sm text-[#cccccc] placeholder-[#858585] focus:bg-gray-800 outline-none transition-colors"
 						/>
 					</div>
 				</div>
@@ -434,7 +436,7 @@ const Project = () => {
 				<div className="flex items-center gap-2">
 					<button
 						onClick={() => setIsChatOpen(!isChatOpen)}
-						className={`p-1.5 rounded transition-colors hover:bg-[#37373d] ${
+						className={`p-1.5 rounded transition-colors cursor-pointer hover:bg-[#37373d] ${
 							isChatOpen 
 								? 'bg-gay-800 text-white' 
 								: 'text-[#cccccc]'

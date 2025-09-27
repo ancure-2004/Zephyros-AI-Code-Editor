@@ -622,7 +622,7 @@ const Projects = () => {
 											type="button"
 											onClick={() => toggleEditStackSelection(stack)}
 											className={`flex items-center gap-1 p-2 rounded-md border transition-all duration-200 font-mono text-sm ${
-												editStack.find((s) => s.name === stack.name)
+												editStack?.find((s) => s.name === stack.name)
 													? "border-blue-500 bg-blue-500/10 text-blue-400"
 													: "border-gray-700 bg-gray-900 text-gray-400 hover:border-gray-600 hover:bg-gray-800"
 											}`}
@@ -634,7 +634,7 @@ const Projects = () => {
 								</div>
 								<div className="text-xs font-mono text-gray-600 mt-1">
 									<span className="text-gray-500">
-										]; // Selected: {editStack.length}
+										]; // Selected: {editStack?.length}
 									</span>
 								</div>
 							</div>
@@ -643,7 +643,7 @@ const Projects = () => {
 							<div className="flex flex-col md:flex-row justify-between items-center pt-3 border-t border-gray-800 gap-2 md:gap-0">
 								<div className="text-xs font-mono text-gray-600 mb-2 md:mb-0">
 									$ npm update project --stack{" "}
-									{editStack.map((s) => s.name.toLowerCase()).join(" ")}
+									{editStack?.map((s) => s.name.toLowerCase()).join(" ")}
 								</div>
 								<div className="flex gap-2 md:gap-3">
 									<button

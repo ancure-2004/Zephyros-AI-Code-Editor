@@ -1,5 +1,6 @@
 import React, {useState, useEffect} from "react";
 import hljs from "highlight.js";
+import toast from "react-hot-toast";
 
 const CodeEditor = ({
 	openFiles,
@@ -15,6 +16,9 @@ const CodeEditor = ({
 	setIframeUrl,
 	setOpenFiles,
 }) => {
+	const [isContainerReady, setIsContainerReady] = useState(false);
+	const [isLoading, setIsLoading] = useState(false);
+
 	// Get file extension for syntax highlighting
 	const getLanguage = (filename) => {
 		const ext = filename?.split(".").pop()?.toLowerCase();
@@ -89,6 +93,12 @@ const CodeEditor = ({
 		return fileTree && fileTree[filename];
 	};
 
+	useEffect(() => {
+		if (webContainer) {
+			setIsContainerReady(true);
+		}
+	}, [webContainer]);
+
 	return (
 		<div
 			className="code-editor bg-gray-950 w-full flex flex-col h-full text-[#cccccc] font-mono"
@@ -144,7 +154,7 @@ const CodeEditor = ({
 								{/* Close button */}
 								<button
 									onClick={(e) => closeFile(file, e)}
-									className={`absolute right-1 top-1/2 transform -translate-y-1/2 w-5 h-5 rounded flex items-center justify-center transition-opacity ${
+									className={`absolute cursor-pointer right-1 top-1/2 transform -translate-y-1/2 w-5 h-5 rounded flex items-center justify-center transition-opacity ${
 										isActive
 											? "opacity-70 hover:opacity-100"
 											: "opacity-0 group-hover:opacity-100"
@@ -165,8 +175,11 @@ const CodeEditor = ({
 							try {
 								if (!webContainer) {
 									console.warn("webContainer not ready yet");
+									toast.error("⚠️ Container not ready yet");
 									return;
 								}
+
+								setIsLoading(true);
 
 								await webContainer.mount(fileTree);
 
@@ -220,11 +233,17 @@ const CodeEditor = ({
 							} catch (err) {
 								console.error("Run handler error:", err);
 								alert("Run failed — see console for details");
+							} finally {
+								setIsLoading(false);
 							}
 						}}
-						className="px-3 py-1 h-5 w-5 hover:bg-gray-800 text-white text-sm rounded flex items-center justify-center gap-2 transition-colors"
-					>
-						<span className="text-xs">▶</span>
+						disabled={!isContainerReady || isLoading}
+						className={`px-3 py-1 h-5 w-5 hover:bg-gray-800 text-white text-sm rounded flex items-center justify-center gap-2 transition-colors`}>
+						{isLoading ? (
+							<i className="ri-loader-4-line animate-spin text-sm"></i>
+						) : (
+							<span className="text-xs">▶</span>
+						)}
 					</button>
 				</div>
 			</div>
