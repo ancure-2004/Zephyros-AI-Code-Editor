@@ -263,12 +263,6 @@ const ChatArea = ({
 									<div className="bg-[#2d2d30] border border-[#3c3c3c] p-3 rounded shadow-lg">
 										<div className="flex items-center gap-2">
 											{renderTypingDots()}
-											{aiTypingStage === "thinking" && (
-												<i className="ri-brain-fill text-[#007acc] text-sm animate-pulse ml-2"></i>
-											)}
-											{aiTypingStage === "generating" && (
-												<i className="ri-magic-fill text-[#c586c0] text-sm animate-spin ml-2"></i>
-											)}
 										</div>
 									</div>
 								</div>
