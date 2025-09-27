@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useContext, useRef, createRef} from "react";
+import React, {useState, useEffect, useContext, useRef, createRef, useCallback} from "react";
 import {useNavigate, useLocation} from "react-router-dom";
 
 import axios from "../config/axios";
@@ -29,6 +29,71 @@ function SyntaxHighlightedCode(props) {
 	return <code {...props} ref={ref} />;
 }
 
+// ResizeHandle component for dragging
+const ResizeHandle = ({ onResize, orientation = 'vertical' }) => {
+	const [isDragging, setIsDragging] = useState(false);
+	const startPos = useRef(0);
+
+	const handleMouseDown = useCallback((e) => {
+		setIsDragging(true);
+		startPos.current = orientation === 'vertical' ? e.clientX : e.clientY;
+		e.preventDefault();
+	}, [orientation]);
+
+	const handleMouseMove = useCallback((e) => {
+		if (!isDragging) return;
+		
+		const currentPos = orientation === 'vertical' ? e.clientX : e.clientY;
+		const delta = currentPos - startPos.current;
+		startPos.current = currentPos;
+		
+		onResize(delta);
+	}, [isDragging, onResize, orientation]);
+
+	const handleMouseUp = useCallback(() => {
+		setIsDragging(false);
+	}, []);
+
+	useEffect(() => {
+		if (isDragging) {
+			document.addEventListener('mousemove', handleMouseMove);
+			document.addEventListener('mouseup', handleMouseUp);
+			document.body.style.cursor = orientation === 'vertical' ? 'col-resize' : 'row-resize';
+			
+			return () => {
+				document.removeEventListener('mousemove', handleMouseMove);
+				document.removeEventListener('mouseup', handleMouseUp);
+				document.body.style.cursor = 'default';
+			};
+		}
+	}, [isDragging, handleMouseMove, handleMouseUp, orientation]);
+
+	return (
+		<div className="relative flex items-center justify-center">
+			{/* Invisible hit area */}
+			<div
+				className={`absolute ${
+					orientation === 'vertical' 
+						? 'w-2 h-full cursor-col-resize' 
+						: 'h-2 w-full cursor-row-resize'
+				} z-10`}
+				onMouseDown={handleMouseDown}
+				style={{ background: 'transparent' }}
+			/>
+			{/* Visible line */}
+			<div
+				className={`${
+					orientation === 'vertical' 
+						? 'w-px h-full' 
+						: 'h-px w-full'
+				} bg-[#3c3c3c] transition-colors duration-150 ${
+					isDragging ? 'bg-blue-500' : ''
+				} hover:bg-blue-500 pointer-events-none`}
+			/>
+		</div>
+	);
+};
+
 const Project = () => {
 	const location = useLocation();
 	const navigate = useNavigate();
@@ -46,6 +111,13 @@ const Project = () => {
 	const [isChatOpen, setIsChatOpen] = useState(true);
 	const [isFileTreeOpen, setIsFileTreeOpen] = useState(true);
 	const [searchQuery, setSearchQuery] = useState("");
+
+	// Resizable panel widths
+	const [fileTreeWidth, setFileTreeWidth] = useState(250);
+	const [chatWidth, setChatWidth] = useState(320);
+	const [iframeWidth, setIframeWidth] = useState(400);
+	const containerRef = useRef(null);
+	const [containerWidth, setContainerWidth] = useState(1200);
 
 	const {user} = useContext(UserContext);
 	const messageBox = createRef();
@@ -65,6 +137,42 @@ const Project = () => {
 		currentLine: 1,
 		currentColumn: 1
 	});
+
+	// Resize handlers
+	const handleFileTreeResize = useCallback((delta) => {
+		setFileTreeWidth(prev => Math.max(150, Math.min(500, prev + delta)));
+	}, []);
+
+	const handleIframeResize = useCallback((delta) => {
+		setIframeWidth(prev => Math.max(200, Math.min(800, prev + delta)));
+	}, []);
+
+	const handleChatResize = useCallback((delta) => {
+		setChatWidth(prev => Math.max(250, Math.min(600, prev - delta)));
+	}, []);
+
+	// Calculate code editor width
+	const getCodeEditorWidth = () => {
+		let usedWidth = 0;
+		if (isFileTreeOpen) usedWidth += fileTreeWidth + 1; // +8 for 8px resize handle area (2*4px)
+		if (isChatOpen) usedWidth += chatWidth + 1; // +8 for 8px resize handle area
+		if (iframeUrl) usedWidth += iframeWidth + 1; // +8 for 8px resize handle area
+		
+		return Math.max(300, containerWidth - usedWidth);
+	};
+
+	// Track container width
+	useEffect(() => {
+		const handleResize = () => {
+			if (containerRef.current) {
+				setContainerWidth(containerRef.current.offsetWidth);
+			}
+		};
+
+		handleResize();
+		window.addEventListener('resize', handleResize);
+		return () => window.removeEventListener('resize', handleResize);
+	}, []);
 
 	useEffect(() => {
 		initializeSocket(project?._id);
@@ -279,7 +387,7 @@ const Project = () => {
 	};
 
 	return (
-		<main className="h-screen w-screen flex flex-col bg-[#1e1e1e]">
+		<main className="h-screen w-screen flex flex-col bg-white">
 			{/* VS Code Header */}
 			<header className="bg-gray-900 border-b border-[#3c3c3c] px-4 py-2 h-10 flex items-center justify-between text-[#cccccc] text-sm">
 				{/* Left section - Logo and navigation */}
@@ -341,57 +449,79 @@ const Project = () => {
 			</header>
 
 			{/* Main content area */}
-			<div className="flex-1 flex overflow-hidden">
+			<div ref={containerRef} className="flex-1 flex overflow-hidden">
 				<section className="right flex-grow h-full flex">
+					{/* File Tree with resize handle */}
 					{isFileTreeOpen && fileTree && (
-						<FileTree
-							project={project}
-							fileTree={fileTree}
+						<>
+							<div style={{ width: `${fileTreeWidth}px` }} className="overflow-hidden">
+								<FileTree
+									project={project}
+									fileTree={fileTree}
+									openFiles={openFiles}
+									setOpenFiles={setOpenFiles}
+									currentFile={currentFile}
+									setCurrentFile={setCurrentFile}
+								/>
+							</div>
+							<ResizeHandle onResize={handleFileTreeResize} />
+						</>
+					)}
+
+					{/* Code Editor */}
+					<div style={{ width: `${getCodeEditorWidth()}px` }} className="overflow-hidden">
+						<CodeEditor
 							openFiles={openFiles}
 							setOpenFiles={setOpenFiles}
 							currentFile={currentFile}
 							setCurrentFile={setCurrentFile}
+							webContainer={webContainer}
+							setWebContainer={setWebContainer}
+							fileTree={fileTree}
+							setFileTree={setFileTree}
+							runProcess={runProcess}
+							setRunProcess={setRunProcess}
+							saveFileTree={saveFileTree}
+							setIframeUrl={setIframeUrl}
 						/>
-					)}
+					</div>
 
-					<CodeEditor
-						openFiles={openFiles}
-						setOpenFiles={setOpenFiles}
-						currentFile={currentFile}
-						setCurrentFile={setCurrentFile}
-						webContainer={webContainer}
-						setWebContainer={setWebContainer}
-						fileTree={fileTree}
-						setFileTree={setFileTree}
-						runProcess={runProcess}
-						setRunProcess={setRunProcess}
-						saveFileTree={saveFileTree}
-						setIframeUrl={setIframeUrl}
-					/>
-
+					{/* IFrame/Preview with resize handle */}
 					{iframeUrl && webContainer && (
-						<IFrame iframeUrl={iframeUrl} setIframeUrl={setIframeUrl} />
+						<>
+							<ResizeHandle onResize={handleIframeResize} />
+							<div style={{ width: `${iframeWidth}px` }} className="overflow-hidden">
+								<IFrame iframeUrl={iframeUrl} setIframeUrl={setIframeUrl} />
+							</div>
+						</>
 					)}
 				</section>
 
+				{/* Chat Panel with resize handle */}
 				{isChatOpen && (
-					<section className="left relative flex flex-col h-full min-w-80 border-l border-[#3c3c3c]">
-						<ChatArea
-							project={project}
-							users={users}
-							messages={messages}
-							message={message}
-							setMessage={setMessage}
-							messageBox={messageBox}
-							writeAImessage={writeAImessage}
-							send={send}
-							handleUserClick={handleUserClick}
-							addCollaborators={addCollaborators}
-							selectedUserId={selectedUserId}
-							isModalOpen={isModalOpen}
-							setIsModalOpen={setIsModalOpen}
-						/>
-					</section>
+					<>
+						<ResizeHandle onResize={handleChatResize} />
+						<section 
+							className="left relative flex flex-col h-full border-l border-[#3c3c3c]" 
+							style={{ width: `${chatWidth}px` }}
+						>
+							<ChatArea
+								project={project}
+								users={users}
+								messages={messages}
+								message={message}
+								setMessage={setMessage}
+								messageBox={messageBox}
+								writeAImessage={writeAImessage}
+								send={send}
+								handleUserClick={handleUserClick}
+								addCollaborators={addCollaborators}
+								selectedUserId={selectedUserId}
+								isModalOpen={isModalOpen}
+								setIsModalOpen={setIsModalOpen}
+							/>
+						</section>
+					</>
 				)}
 			</div>
 
