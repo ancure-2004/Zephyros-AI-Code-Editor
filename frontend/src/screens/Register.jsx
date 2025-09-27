@@ -16,10 +16,18 @@ export default function LoginPage() {
 	function submitHandler(e) {
 		e.preventDefault();
 		axios
-			.post("/users/register", {email, password})
+			.post("/users/register", {
+				name:{
+					firstName: firstname,
+					lastName: lastname
+				},
+				email,
+				password
+			})
 			.then((res) => {
 				localStorage.setItem("token", res.data.token);
 				setUser(res.data.user);
+				console.log(res.data.user);
 				navigate("/projects");
 			})
 			.catch((err) => console.log(err));

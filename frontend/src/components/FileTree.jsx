@@ -47,9 +47,17 @@ const FileTree = ({
     };
 
     return (
-        <div className="explorer h-full min-w-64 bg-[#252526] text-[#cccccc] border-r border-[#3c3c3c] font-sans">
+        <div className="explorer h-full min-w-64 text-[#cccccc] border-r border-[#3c3c3c] font-sans"
+        style={{
+				background: `linear-gradient(135deg, rgb(3, 7, 18) 0%, rgb(0, 0, 0) 100%)`,
+			}}
+        >
             {/* Project Header */}
-            <div className="project-header bg-[#252526] border-b border-[#3c3c3c] px-3 py-2">
+            <div className="project-header border-b border-[#3c3c3c] px-3 py-2"
+            style={{
+				background: `linear-gradient(135deg, rgb(3, 7, 18) 0%, rgb(0, 0, 0) 100%)`,
+			}}
+            >
                 <span className="text-sm font-medium text-[#cccccc]">
                     {project?.name}
                 </span>
@@ -67,8 +75,8 @@ const FileTree = ({
                             onClick={() => handleFileClick(file)}
                             className={`file-item flex items-center gap-2 px-3 py-2 cursor-pointer select-none transition-colors ${
                                 isActive 
-                                    ? 'bg-[#094771] text-white' 
-                                    : 'hover:bg-[#2a2d2e] text-[#cccccc]'
+                                    ? 'bg-gray-900 text-white' 
+                                    : 'hover:bg-gray-700 text-[#cccccc]'
                             }`}
                         >
                             {/* File icon */}

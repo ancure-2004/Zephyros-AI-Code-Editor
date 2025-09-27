@@ -14,12 +14,11 @@ const ChatArea = ({
 	addCollaborators,
 	selectedUserId,
 	setIsModalOpen,
-	isModalOpen
+	isModalOpen,
 }) => {
-	
 	const [isSidePanelOpen, setIsSidePanelOpen] = useState(false);
 	const [isAITyping, setIsAITyping] = useState(false);
-	const [aiTypingStage, setAITypingStage] = useState(''); // 'typing', 'thinking', 'generating'
+	const [aiTypingStage, setAITypingStage] = useState(""); // 'typing', 'thinking', 'generating'
 
 	const {user} = useContext(UserContext);
 	const inputRef = useRef(null);
@@ -49,7 +48,7 @@ const ChatArea = ({
 	// Show only when message starts with "@ai"
 	useEffect(() => {
 		const lastMessage = messages[messages.length - 1];
-		
+
 		// Check if we should show AI typing:
 		// 1. There is a last message
 		// 2. The last message is NOT from AI (to avoid showing typing after AI responds)
@@ -58,7 +57,7 @@ const ChatArea = ({
 		if (
 			lastMessage &&
 			lastMessage.sender._id !== "ai" &&
-			lastMessage.message.toLowerCase().startsWith('@ai') &&
+			lastMessage.message.toLowerCase().startsWith("@ai") &&
 			!isAITyping // Prevent multiple triggers
 		) {
 			// Clear any existing timeout
@@ -68,20 +67,20 @@ const ChatArea = ({
 
 			// Start the typing sequence
 			setIsAITyping(true);
-			setAITypingStage('thinking');
+			setAITypingStage("thinking");
 
 			// Stage 1: AI is thinking (1-2 seconds)
 			typingTimeoutRef.current = setTimeout(() => {
-				setAITypingStage('typing');
-				
+				setAITypingStage("typing");
+
 				// Stage 2: AI is typing (2-4 seconds)
 				typingTimeoutRef.current = setTimeout(() => {
-					setAITypingStage('generating');
-					
+					setAITypingStage("generating");
+
 					// Stage 3: AI is generating response (1-2 seconds)
 					typingTimeoutRef.current = setTimeout(() => {
 						setIsAITyping(false);
-						setAITypingStage('');
+						setAITypingStage("");
 					}, 1500);
 				}, 3000);
 			}, 1500);
@@ -100,7 +99,7 @@ const ChatArea = ({
 		const lastMessage = messages[messages.length - 1];
 		if (lastMessage && lastMessage.sender._id === "ai") {
 			setIsAITyping(false);
-			setAITypingStage('');
+			setAITypingStage("");
 			if (typingTimeoutRef.current) {
 				clearTimeout(typingTimeoutRef.current);
 			}
@@ -125,54 +124,70 @@ const ChatArea = ({
 	// WhatsApp-style typing indicator text
 	const getTypingText = () => {
 		switch (aiTypingStage) {
-			case 'thinking':
-				return 'thinking...';
-			case 'typing':
-				return 'typing...';
-			case 'generating':
-				return 'generating response...';
+			case "thinking":
+				return "thinking...";
+			case "typing":
+				return "typing...";
+			case "generating":
+				return "generating response...";
 			default:
-				return 'typing...';
+				return "typing...";
 		}
 	};
 
 	// Enhanced WhatsApp-style typing dots
 	const renderTypingDots = () => {
-		if (aiTypingStage === 'thinking') {
+		if (aiTypingStage === "thinking") {
 			return (
 				<div className="flex gap-1 items-center">
 					<div className="w-2 h-2 bg-[#007acc] rounded-full animate-bounce"></div>
-					<div className="w-2 h-2 bg-[#007acc] rounded-full animate-bounce" style={{animationDelay: "0.1s"}}></div>
-					<div className="w-2 h-2 bg-[#007acc] rounded-full animate-bounce" style={{animationDelay: "0.2s"}}></div>
+					<div
+						className="w-2 h-2 bg-[#007acc] rounded-full animate-bounce"
+						style={{animationDelay: "0.1s"}}
+					></div>
+					<div
+						className="w-2 h-2 bg-[#007acc] rounded-full animate-bounce"
+						style={{animationDelay: "0.2s"}}
+					></div>
 				</div>
 			);
 		}
-		
+
 		return (
 			<div className="flex gap-1">
 				<div className="w-2 h-2 bg-[#858585] rounded-full animate-bounce"></div>
-				<div className="w-2 h-2 bg-[#858585] rounded-full animate-bounce" style={{animationDelay: "0.1s"}}></div>
-				<div className="w-2 h-2 bg-[#858585] rounded-full animate-bounce" style={{animationDelay: "0.2s"}}></div>
+				<div
+					className="w-2 h-2 bg-[#858585] rounded-full animate-bounce"
+					style={{animationDelay: "0.1s"}}
+				></div>
+				<div
+					className="w-2 h-2 bg-[#858585] rounded-full animate-bounce"
+					style={{animationDelay: "0.2s"}}
+				></div>
 			</div>
 		);
 	};
 
 	return (
-		<div className="flex flex-col h-screen bg-[#1e1e1e] text-[#cccccc] relative font-mono">
+		<div
+			className="flex flex-col h-screen bg-gray-900 text-[#cccccc] relative font-mono"
+			style={{
+				background: `linear-gradient(135deg, rgb(3, 7, 20) 0%, rgb(0, 0, 0) 100%)`,
+			}}
+		>
 			{/* Header */}
-			<header className="flex justify-between items-center py-2 px-4 bg-[#2d2d30] border-b border-[#3c3c3c] absolute top-0 w-full z-10">
+			<header className="flex justify-between items-center py-2 px-4 absolute top-0 w-full h-12 z-10">
 				<div className="flex justify-between items-center w-full">
 					<button
-						className="group cursor-pointer relative bg-[#0e639c] hover:bg-[#1177bb] text-white py-2 px-3 rounded flex items-center gap-2 border border-[#0e639c] hover:border-[#1177bb] transition-all duration-200 text-sm"
+						className="group cursor-pointer relative bg-gray-850 hover:bg-[#081c2a] text-white py-0.5 px-2 rounded flex items-center gap-2 border border-gray-700/90 hover:border-[#020405] transition-all duration-200 text-sm"
 						onClick={() => setIsModalOpen(true)}
 					>
 						<i className="ri-add-fill"></i>
-						<span className="hidden md:block">Add Collaborator</span>
+						<span className="hidden text-xs font-semibold md:block">
+							Add Collaborator
+						</span>
 					</button>
-					<div className="flex gap-1 items-center hover:bg-[#464647] px-1 rounded-xl">
-						<p className="text-2xl text-[#858585] mb-1">
-							{project?.users?.length || 0}
-						</p>
+					<div className="flex gap-1 items-center hover:bg-[#464647] px-1 rounded-lg">
 						<button
 							onClick={() => setIsSidePanelOpen(!isSidePanelOpen)}
 							className="cursor-pointer rounded transition-colors "
@@ -184,14 +199,10 @@ const ChatArea = ({
 			</header>
 
 			{/* Chat Area */}
-			<div className="conversation-area pt-22 pb-12 flex-grow flex flex-col h-full relative">
+			<div className="conversation-area flex flex-col h-full relative">
 				<div
 					ref={messageBox}
-					className="message-box p-1 flex-grow flex flex-col gap-1 overflow-auto max-h-full"
-					style={{
-						scrollbarWidth: 'thin',
-						scrollbarColor: '#424242 #1e1e1e'
-					}}
+					className="message-box absolute top-12 left-0 right-0 bottom-12 p-1 flex-grow flex flex-col gap-1 overflow-auto max-h-full"
 				>
 					<div className="flex flex-col gap-4 max-w-4xl mx-auto p-4 w-full">
 						{messages.map((msg, index) => (
@@ -205,29 +216,33 @@ const ChatArea = ({
 							>
 								<div
 									className={`${
-										msg.sender._id === "ai" ? "max-w-80" : "max-w-52"
+										msg.sender._id === "ai" ? "max-w-70" : "max-w-52"
 									} ${msg.sender._id == user._id.toString() && "ml-auto"}`}
 								>
 									{msg.sender._id !== user._id.toString() && (
 										<div className="flex items-center gap-2 mb-1">
-											<div className="w-6 h-6 rounded-full bg-[#37373d] border border-[#3c3c3c] flex items-center justify-center text-xs font-semibold text-[#cccccc]">
+											<div className="w-6 h-6 rounded-full bg-gray-900 border border-[#3c3c3c] flex items-center justify-center text-xs font-semibold text-[#cccccc]">
 												{msg.sender._id === "ai"
 													? "AI"
 													: getInitials(msg.sender.email)}
 											</div>
 											<small className="text-xs text-[#858585]">
-												{msg.sender._id === "ai" ? "AI Assistant" : msg.sender.email}
+												{msg.sender._id === "ai"
+													? "AI Assistant"
+													: msg.sender.email}
 											</small>
 										</div>
 									)}
 									<div
-										className={`message flex flex-col p-3 w-fit rounded ${
+										className={`message flex flex-col py-1.5 px-2 w-fit rounded-lg ${
 											msg.sender._id == user._id.toString()
-												? "bg-[#0e639c] text-white ml-auto"
-												: "bg-[#2d2d30] text-[#cccccc] border border-[#3c3c3c]"
+												? "bg-gray-900 text-white ml-auto"
+												: "bg-gray-950 text-[#cccccc] border border-[#3c3c3c]"
 										}`}
 									>
-										<div className="text-sm">{renderMessage(msg)}</div>
+										<div className="text-xs font-semibold">
+											{renderMessage(msg)}
+										</div>
 									</div>
 								</div>
 							</div>
@@ -238,7 +253,7 @@ const ChatArea = ({
 							<div className="flex justify-start animate-fadeIn">
 								<div className="max-w-xs">
 									<div className="flex items-center gap-2 mb-1">
-										<div className="w-6 h-6 rounded-full bg-[#007acc] flex items-center justify-center text-xs font-semibold text-white">
+										<div className="w-6 h-6 rounded-full bg-gray-800 flex items-center justify-center text-xs font-semibold text-white">
 											<i className="ri-robot-fill"></i>
 										</div>
 										<small className="text-xs text-[#007acc] animate-pulse">
@@ -248,10 +263,10 @@ const ChatArea = ({
 									<div className="bg-[#2d2d30] border border-[#3c3c3c] p-3 rounded shadow-lg">
 										<div className="flex items-center gap-2">
 											{renderTypingDots()}
-											{aiTypingStage === 'thinking' && (
+											{aiTypingStage === "thinking" && (
 												<i className="ri-brain-fill text-[#007acc] text-sm animate-pulse ml-2"></i>
 											)}
-											{aiTypingStage === 'generating' && (
+											{aiTypingStage === "generating" && (
 												<i className="ri-magic-fill text-[#c586c0] text-sm animate-spin ml-2"></i>
 											)}
 										</div>
@@ -262,7 +277,7 @@ const ChatArea = ({
 					</div>
 				</div>
 
-				<div className="inputField w-full flex absolute bottom-0 border-t border-[#3c3c3c]">
+				<div className="inputField w-full flex bottom-0 absolute border-t border-[#3c3c3c] h-10">
 					<input
 						ref={inputRef}
 						value={message}
@@ -275,14 +290,16 @@ const ChatArea = ({
 								}
 							}
 						}}
-						className="p-3 px-4 border-none outline-none flex-grow bg-[#1e1e1e] text-[#cccccc] placeholder-[#858585]"
+						className="py-2 px-4 border-none outline-none flex-grow bg-gray-850 text-sm text-[#cccccc] placeholder-[#858585]"
 						type="text"
-						placeholder={isAITyping ? "AI is responding..." : "Type a message..."}
+						placeholder={
+							isAITyping ? "AI is responding..." : "Type a message..."
+						}
 						disabled={isAITyping}
 					/>
 					<button
 						type="button"
-						className="px-5 bg-[#0e639c] hover:bg-[#1177bb] disabled:bg-[#3c3c3c] disabled:cursor-not-allowed text-white transition-all"
+						className="px-5 bg-black hover:bg-gray-900 disabled:bg-[#3c3c3c] disabled:cursor-not-allowed text-white transition-all"
 						onClick={send}
 						disabled={!message.trim() || isAITyping}
 					>
@@ -297,15 +314,23 @@ const ChatArea = ({
 
 			{/* Side Panel */}
 			<div
-				className={`sidePanel top-0 w-full h-full flex flex-col gap-2 overflow-hidden bg-[#252526] border-l border-[#3c3c3c] absolute transition-all z-15 ${
+				className={`sidePanel top-0 w-full h-full flex flex-col gap-2 overflow-hidden border-l border-[#3c3c3c] absolute transition-all z-15 ${
 					isSidePanelOpen ? "translate-y-0" : "-translate-y-full"
 				}`}
+				style={{
+					background: `linear-gradient(135deg, rgb(3, 7, 18) 0%, rgb(0, 0, 0) 100%)`,
+				}}
 			>
-				<header className="flex justify-between items-center px-4 py-3 bg-[#2d2d30] border-b border-[#3c3c3c]">
-					<h1 className="font-semibold text-lg text-[#cccccc]">Collaborators</h1>
+				<header
+					className="flex justify-between items-center px-4 py-1 border-b border-gray-700"
+					style={{
+						background: `linear-gradient(135deg, rgb(3, 7, 18) 0%, rgb(0, 0, 0) 100%)`,
+					}}
+				>
+					<h1 className="font-semibold text-m text-[#cccccc]">Collaborators</h1>
 					<button
 						onClick={() => setIsSidePanelOpen(!isSidePanelOpen)}
-						className="p-2 hover:bg-[#37373d] rounded transition-colors"
+						className="p-1 h-8 w-8 hover:bg-gray-800 rounded transition-colors"
 					>
 						<i className="ri-close-fill"></i>
 					</button>
@@ -316,18 +341,21 @@ const ChatArea = ({
 							return (
 								<div
 									key={index}
-									className="user cursor-pointer hover:bg-[#2a2d2e] p-3 flex gap-3 items-center rounded border border-[#3c3c3c] transition-colors"
+									className="user cursor-pointer hover:bg-[#2a2d2e] py-2 px-3 flex gap-3 items-center rounded border border-[#3c3c3c] transition-colors"
 								>
 									<div className="relative">
-										<div className="w-12 h-12 rounded-full bg-[#37373d] border border-[#3c3c3c] flex items-center justify-center text-[#cccccc] font-semibold">
+										<div className="w-8 h-8 rounded-full bg-gray-800 border border-[#3c3c3c] flex items-center justify-center text-[#cccccc] font-semibold">
 											{getInitials(collaborator.email)}
 										</div>
 										<div className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-[#252526] bg-[#4ec9b0]"></div>
 									</div>
 									<div className="flex-grow">
-										<h1 className="font-semibold text-[#cccccc]">
-											{collaborator.email}
+										<h1 className="font-bold text-[#cccccc]">
+											{collaborator?.name?.firstName} {collaborator?.name?.lastName}
 										</h1>
+										<h2 className="font-semibold text-[#7c7b7b] text-xs">
+											{collaborator.email}
+										</h2>
 										<p className="text-xs text-[#858585]">online</p>
 									</div>
 								</div>
@@ -338,8 +366,13 @@ const ChatArea = ({
 
 			{/* Modal */}
 			{isModalOpen && (
-				<div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-80 z-50 backdrop-blur-sm">
-					<div className="bg-[#252526] rounded shadow-2xl p-4 w-full max-w-md mx-4 transform transition-all duration-300 scale-100 border border-[#3c3c3c]">
+				<div className="fixed inset-0 flex items-center justify-center z-50 backdrop-blur-2xl">
+					<div
+						className="rounded shadow-2xl p-4 w-full max-w-md mx-4 transform transition-all duration-300 scale-100 border border-black"
+						style={{
+							background: `linear-gradient(135deg, rgb(3, 7, 20) 0%, rgb(0, 0, 0) 100%)`,
+						}}
+					>
 						{/* Header */}
 						<header className="flex items-center justify-between mb-4 border-b border-[#3c3c3c] pb-3">
 							<div className="flex items-center gap-3">
@@ -354,7 +387,7 @@ const ChatArea = ({
 							</div>
 							<button
 								onClick={() => setIsModalOpen(false)}
-								className="w-7 h-7 rounded bg-[#37373d] hover:bg-[#464647] flex items-center justify-center transition-colors border border-[#3c3c3c]"
+								className="w-7 h-7 rounded bg-gray-950 hover:bg-gray-800 flex items-center justify-center transition-colors"
 							>
 								<i className="ri-close-fill text-[#cccccc]"></i>
 							</button>
@@ -365,14 +398,14 @@ const ChatArea = ({
 								users.map((collaborator) => (
 									<div
 										key={collaborator._id}
-										className={`user cursor-pointer hover:bg-[#2a2d2e] transition-all duration-200 ${
+										className={`user cursor-pointer hover:bg-gray-800 transition-all duration-200 ${
 											Array.from(selectedUserId).indexOf(collaborator._id) != -1
-												? "bg-[#094771] border border-[#007acc]"
-												: "border border-[#3c3c3c]"
+												? "bg-gray-900"
+												: ""
 										} p-3 flex gap-3 items-center rounded`}
 										onClick={() => handleUserClick(collaborator._id)}
 									>
-										<div className="w-10 h-10 rounded-full bg-[#37373d] border border-[#3c3c3c] flex items-center justify-center text-[#cccccc] font-semibold text-sm">
+										<div className="w-10 h-10 rounded-full bg-gray-900 border border-black flex items-center justify-center text-[#cccccc] font-semibold text-sm">
 											{getInitials(collaborator.email)}
 										</div>
 										<div className="flex-grow">
@@ -390,7 +423,7 @@ const ChatArea = ({
 						<button
 							onClick={addCollaborators}
 							disabled={selectedUserId.size === 0}
-							className="w-full py-3 bg-[#0e639c] hover:bg-[#1177bb] disabled:bg-[#3c3c3c] text-white rounded font-semibold transition-colors"
+							className="w-full py-3 bg-[#031e30] hover:bg-[#061823] disabled:bg-gray-900 text-white rounded font-semibold transition-colors"
 						>
 							Add {Array.from(selectedUserId).length} Collaborator
 							{Array.from(selectedUserId).length !== 1 ? "s" : ""}

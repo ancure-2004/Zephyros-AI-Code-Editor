@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useState, useContext} from "react";
 import {UserContext} from "../context/user.context";
 import axios from "../config/axios";
 import {useNavigate} from "react-router-dom";
@@ -13,6 +13,8 @@ const Projects = () => {
 	const [editingProject, setEditingProject] = useState(null);
 	const [editName, setEditName] = useState("");
 	const [editStack, setEditStack] = useState([]);
+
+	const {user} = useContext(UserContext);
 
 	const navigate = useNavigate();
 
@@ -160,18 +162,17 @@ const Projects = () => {
 		<main className="min-h-screen bg-black text-white p-6">
 			<div className="max-w-7xl mx-auto">
 				{/* Header */}
-				<div className="flex items-center justify-between mb-8">
+				<div className="flex flex-col items-start gap-2 justify-between mb-8">
 					<div>
 						<h1 className="text-3xl font-bold text-white mb-2 flex items-center gap-3">
-							<div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg"></div>
-							My Projects
+							Welcome <span className="bg-gradient-to-r  from-blue-600 to-purple-600 bg-clip-text text-transparent">{user?.name?.firstName} ...</span>
 						</h1>
 						<p className="text-gray-500">
 							Manage and explore your development projects
 						</p>
 					</div>
 					<button
-						className="group relative bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white px-6 py-3 rounded-lg font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 flex items-center gap-2 border border-gray-800"
+						className="group mt-10 relative bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white px-6 py-3 rounded-lg font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 flex items-center gap-2 border border-gray-800"
 						onClick={() => setIsModalOpen(true)}
 					>
 						<span className="text-xl">+</span>
@@ -419,7 +420,10 @@ const Projects = () => {
 						<p className="text-gray-600 font-mono text-sm mb-4">
 							Initialize your first repository
 						</p>
-						<code onClick={() => setIsModalOpen(true)} className="text-xs cursor-pointer text-blue-400 bg-gray-950 px-3 py-1 rounded border border-gray-800">
+						<code
+							onClick={() => setIsModalOpen(true)}
+							className="text-xs cursor-pointer text-blue-400 bg-gray-950 px-3 py-1 rounded border border-gray-800"
+						>
 							git init my-project
 						</code>
 					</div>
