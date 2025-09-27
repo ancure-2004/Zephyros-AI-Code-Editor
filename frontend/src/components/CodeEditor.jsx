@@ -15,6 +15,8 @@ const CodeEditor = ({
 	saveFileTree,
 	setIframeUrl,
 	setOpenFiles,
+	setIsServerReady,
+	setIsInstalling,
 }) => {
 	const [isContainerReady, setIsContainerReady] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
@@ -58,15 +60,6 @@ const CodeEditor = ({
 		};
 		return iconMap[ext] || "📄";
 	};
-
-	const backgroundPatterns = [
-		"linear-gradient(135deg, rgba(99, 102, 241, 0.08) 0%, rgba(139, 92, 246, 0.02) 100%)",
-		"linear-gradient(135deg, rgba(236, 72, 153, 0.08) 0%, rgba(219, 39, 119, 0.02) 100%)",
-		"linear-gradient(135deg, rgba(59, 130, 246, 0.08) 0%, rgba(37, 99, 235, 0.02) 100%)",
-		"linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(5, 150, 105, 0.02) 100%)",
-		"linear-gradient(135deg, rgba(245, 158, 11, 0.08) 0%, rgba(217, 119, 6, 0.02) 100%)",
-		"linear-gradient(135deg, rgba(139, 92, 246, 0.08) 0%, rgba(124, 58, 237, 0.02) 100%)",
-	];
 
 	// Close a file tab
 	const closeFile = (fileToClose, e) => {
@@ -180,6 +173,8 @@ const CodeEditor = ({
 								}
 
 								setIsLoading(true);
+								setIsInstalling(true);
+								setIsServerReady(false);
 
 								await webContainer.mount(fileTree);
 
@@ -198,6 +193,9 @@ const CodeEditor = ({
 										)
 										.catch((e) => console.warn("install pipeTo error", e));
 								}
+								await installProcess.exit;
+								toast.success("✅ Installation Complete")
+								setIsInstalling(false);
 
 								// Kill previous process
 								if (runProcess) {
@@ -228,6 +226,8 @@ const CodeEditor = ({
 
 								webContainer.on("server-ready", (port, url) => {
 									console.log("server-ready", port, url);
+									setIsServerReady(true);
+									toast.success("✅ Server Ready");
 									setIframeUrl(url);
 								});
 							} catch (err) {
@@ -235,6 +235,7 @@ const CodeEditor = ({
 								alert("Run failed — see console for details");
 							} finally {
 								setIsLoading(false);
+								setIsInstalling(false);
 							}
 						}}
 						disabled={!isContainerReady || isLoading}

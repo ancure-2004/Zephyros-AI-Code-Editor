@@ -131,6 +131,8 @@ const Project = () => {
 	const [webContainer, setWebContainer] = useState(null);
 	const [iframeUrl, setIframeUrl] = useState(null);
 	const [runProcess, setRunProcess] = useState(null);
+	const [isInstalling, setIsInstalling] = useState(false);
+	const [isServerReady, setIsServerReady] = useState(false);
 
 	// Footer stats state
 	const [editorStats, setEditorStats] = useState({
@@ -485,6 +487,8 @@ const Project = () => {
 							setRunProcess={setRunProcess}
 							saveFileTree={saveFileTree}
 							setIframeUrl={setIframeUrl}
+							setIsInstalling={setIsInstalling}
+							setIsServerReady={setIsServerReady}
 						/>
 					</div>
 
@@ -559,6 +563,21 @@ const Project = () => {
 
 				{/* Right section - Action buttons */}
 				<div className="flex items-center gap-3">
+
+					{isInstalling && (
+						<span className="text-xs text-yellow-400 flex items-center gap-1">
+							<i className="ri-loader-4-line animate-spin"></i> Installing...
+						</span>
+					)}
+
+					{/* Server ready indicator */}
+					{isServerReady && (
+						<span className="text-xs text-green-400 flex items-center gap-1">
+							<i className="ri-check-line"></i> Server Ready
+						</span>
+					)}
+
+
 					<button
 						onClick={runProject}
 						className="flex items-center gap-1 hover:bg-[#1177bb] px-2 py-0.5 rounded transition-colors"
