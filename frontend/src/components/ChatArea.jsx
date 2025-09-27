@@ -229,12 +229,12 @@ const ChatArea = ({
 											<small className="text-xs text-[#858585]">
 												{msg.sender._id === "ai"
 													? "AI Assistant"
-													: msg.sender.email}
+													: msg.sender.name.firstName}
 											</small>
 										</div>
 									)}
 									<div
-										className={`message flex flex-col py-1.5 px-2 w-fit rounded-lg ${
+										className={`message flex flex-col py-1.5 px-2 w-fit rounded-lg mt-1 ${
 											msg.sender._id == user._id.toString()
 												? "bg-gray-900 text-white ml-auto"
 												: "bg-gray-950 text-[#cccccc] border border-[#3c3c3c]"
