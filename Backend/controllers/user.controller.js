@@ -60,6 +60,18 @@ export const loginController = async (req, res) => {
     }
 }
 
+export const googleLogin = async (req, res) => {
+  const { code } = req.body; // Google ID token from frontend
+
+  try {
+    const { user, jwtToken } = await userService.googleLoginService(code);
+    res.json({ token: jwtToken, user });
+  } catch (err) {
+    console.error(err);
+    res.status(400).json({ message: "Google login failed" });
+  }
+}
+
 export const getUserProfile = async (req, res) => {
      
     console.log(req.user);
