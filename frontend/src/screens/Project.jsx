@@ -501,7 +501,7 @@ const Project = () => {
 			<div ref={containerRef} className="flex-1 flex overflow-hidden">
 				<section className="right flex-grow h-full flex">
 					{/* File Tree with resize handle */}
-					{isFileTreeOpen && fileTree && (
+					{isFileTreeOpen && (
 						<>
 							<div
 								style={{width: `${fileTreeWidth}px`}}

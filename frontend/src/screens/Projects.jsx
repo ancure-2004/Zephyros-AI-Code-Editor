@@ -2,6 +2,7 @@ import React, {useEffect, useState, useContext} from "react";
 import {UserContext} from "../context/user.context";
 import axios from "../config/axios";
 import {useNavigate} from "react-router-dom";
+import axiosInstance from "../config/axios";
 
 const Projects = () => {
 	const [isModalOpen, setIsModalOpen] = useState(false);
@@ -13,8 +14,9 @@ const Projects = () => {
 	const [editingProject, setEditingProject] = useState(null);
 	const [editName, setEditName] = useState("");
 	const [editStack, setEditStack] = useState([]);
+	const [isProfileOpen, setIsProfileOpen] = useState(false);
 
-	const {user} = useContext(UserContext);
+	const {user} = useContext(UserContext); // Assuming logout function exists in context
 
 	const navigate = useNavigate();
 
@@ -42,12 +44,8 @@ const Projects = () => {
 	];
 
 	// Tech stack persistence functions
-	// Note: In Claude.ai artifacts, localStorage is not supported
-	// In a real environment, these functions would work with localStorage
 	const saveProjectTechStack = (projectId, techStack) => {
 		try {
-			// localStorage.setItem(`project_${projectId}_stack`, JSON.stringify(techStack));
-			// For now, we'll store in component state as a fallback
 			console.log(`Would save tech stack for project ${projectId}:`, techStack);
 		} catch (error) {
 			console.log("Storage not available in this environment");
@@ -56,9 +54,6 @@ const Projects = () => {
 
 	const getProjectTechStack = (projectId) => {
 		try {
-			// const stored = localStorage.getItem(`project_${projectId}_stack`);
-			// return stored ? JSON.parse(stored) : getRandomTechStack();
-			// Fallback: return random tech stack for demo
 			return getRandomTechStack();
 		} catch (error) {
 			return getRandomTechStack();
@@ -68,6 +63,22 @@ const Projects = () => {
 	const getRandomTechStack = () => {
 		// const shuffled = [...techStacks].sort(() => 0.5 - Math.random());
 		// return shuffled.slice(0, Math.floor(Math.random() * 3) + 2);
+	};
+
+	// Handle logout
+	const handleLogout = async () => {
+		try {
+			await axiosInstance.get("/users/logout"); // wait for backend to clear session
+		} catch (error) {
+			console.error("Logout failed:", error);
+			// optional: toast.error("Logout failed");
+		} finally {
+			// Always clear client state
+			localStorage.removeItem("token");
+			localStorage.removeItem("user");
+			navigate("/login");
+			setIsProfileOpen(false);
+		}
 	};
 
 	function createProject(e) {
@@ -162,24 +173,42 @@ const Projects = () => {
 		<main className="min-h-screen bg-black text-white p-6">
 			<div className="max-w-7xl mx-auto">
 				{/* Header */}
-				<div className="flex flex-col items-start gap-2 justify-between mb-8">
-					<div>
+				<div className="flex flex-col lg:flex-row items-start lg:items-center gap-4 justify-between mb-8">
+					<div className="flex-1">
 						<h1 className="text-3xl font-bold text-white mb-2 flex items-center gap-3">
-							Welcome <span className="bg-gradient-to-r  from-blue-600 to-purple-600 bg-clip-text text-transparent">{user?.name?.firstName} ...</span>
+							Welcome{" "}
+							<span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+								{user?.name?.firstName} ...
+							</span>
 						</h1>
 						<p className="text-gray-500">
 							Manage and explore your development projects
 						</p>
 					</div>
-					<button
-						className="group mt-10 relative bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white px-6 py-3 rounded-lg font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 flex items-center gap-2 border border-gray-800"
-						onClick={() => setIsModalOpen(true)}
-					>
-						<span className="text-xl">+</span>
-						New Project
-						<div className="absolute inset-0 rounded-lg bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
-					</button>
+					{/* Profile Button */}
+					<div className="relative">
+						<button
+							onClick={() => setIsProfileOpen(!isProfileOpen)}
+							className="group relative w-12 h-12 rounded-full bg-gradient-to-br from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 transition-all duration-300 flex items-center justify-center shadow-lg hover:shadow-xl transform hover:scale-105"
+						>
+							<div className="w-11 h-11 rounded-full bg-gray-900 flex items-center justify-center">
+								<span className="text-lg font-bold text-white">
+									{user?.name?.firstName?.charAt(0)?.toUpperCase() || "U"}
+								</span>
+							</div>
+							<div className="absolute inset-0 rounded-full bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
+						</button>
+					</div>
 				</div>
+
+				<button
+					className="group mb-5 relative bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white px-6 py-3 rounded-lg font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 flex items-center gap-2 border border-gray-800"
+					onClick={() => setIsModalOpen(true)}
+				>
+					<span className="text-xl">+</span>
+					New Project
+					<div className="absolute inset-0 rounded-lg bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
+				</button>
 
 				{/* Projects Grid */}
 				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -333,39 +362,6 @@ const Projects = () => {
 										</div>
 									</div>
 
-									{/* Tech Stack */}
-									{/* <div className="mb-4">
-										<div className="flex items-center gap-2 mb-2">
-											<svg
-												className="w-4 h-4 text-gray-500"
-												fill="none"
-												stroke="currentColor"
-												viewBox="0 0 24 24"
-											>
-												<path
-													strokeLinecap="round"
-													strokeLinejoin="round"
-													strokeWidth={2}
-													d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"
-												/>
-											</svg>
-											<span className="text-xs font-mono text-gray-500">
-												STACK
-											</span>
-										</div>
-										<div className="flex flex-wrap gap-2">
-											{projectStack.map((tech) => (
-												<div
-													key={tech.name}
-													className="flex items-center gap-1 px-2 py-1 rounded bg-gray-900 border border-gray-800 text-xs font-mono text-gray-300"
-												>
-													<span>{tech.icon}</span>
-													{tech.name}
-												</div>
-											))}
-										</div>
-									</div> */}
-
 									{/* Action Area */}
 									<div className="flex items-center justify-between pt-4 border-t border-gray-800">
 										<span className="text-xs font-mono text-gray-600">
@@ -429,6 +425,133 @@ const Projects = () => {
 					</div>
 				)}
 			</div>
+
+			{/* Profile Modal */}
+			{isProfileOpen && (
+				<div className="fixed top-25 right-10 flex items-start justify-end bg-opacity-20 z-50">
+					<div className="bg-gray-950 rounded-xl shadow-2xl border border-gray-800 w-80 transform transition-all duration-300 scale-100 animate-[slideIn_0.3s_ease-out] backdrop-blur-sm">
+						{/* Header */}
+						<div className="border-b border-gray-800 p-4">
+							<div className="flex items-center gap-3">
+								<div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center border-2 border-gray-700">
+									<span className="text-lg font-bold text-white">
+										{user?.name?.firstName?.charAt(0)?.toUpperCase() || "U"}
+									</span>
+								</div>
+								<div>
+									<h3 className="text-lg font-mono font-bold text-white">
+										{user?.name?.firstName} {user?.name?.lastName}
+									</h3>
+									<div className="flex items-center gap-2">
+										<div className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
+										<span className="text-xs font-mono text-gray-500">
+											ONLINE
+										</span>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						{/* User Info */}
+						<div className="p-4 space-y-4">
+							{/* Email */}
+							<div className="flex items-center gap-3 p-3 bg-gray-900/50 rounded-lg border border-gray-800">
+								<div className="w-8 h-8 rounded bg-gray-800 flex items-center justify-center">
+									<svg
+										className="w-4 h-4 text-gray-400"
+										fill="none"
+										stroke="currentColor"
+										viewBox="0 0 24 24"
+									>
+										<path
+											strokeLinecap="round"
+											strokeLinejoin="round"
+											strokeWidth={2}
+											d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"
+										/>
+									</svg>
+								</div>
+								<div className="flex-1">
+									<p className="text-xs font-mono text-gray-500 mb-1">EMAIL</p>
+									<p className="text-sm font-mono text-gray-300 truncate">
+										{user?.email || "user@example.com"}
+									</p>
+								</div>
+							</div>
+
+							{/* Projects Count */}
+							<div className="flex items-center gap-3 p-3 bg-gray-900/50 rounded-lg border border-gray-800">
+								<div className="w-8 h-8 rounded bg-gray-800 flex items-center justify-center">
+									<svg
+										className="w-4 h-4 text-gray-400"
+										fill="none"
+										stroke="currentColor"
+										viewBox="0 0 24 24"
+									>
+										<path
+											strokeLinecap="round"
+											strokeLinejoin="round"
+											strokeWidth={2}
+											d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+										/>
+									</svg>
+								</div>
+								<div className="flex-1">
+									<p className="text-xs font-mono text-gray-500 mb-1">
+										PROJECTS
+									</p>
+									<p className="text-sm font-mono text-blue-400">
+										{projects.length} active
+									</p>
+								</div>
+							</div>
+						</div>
+
+						{/* Actions */}
+						<div className="border-t border-gray-800 p-4 space-y-2">
+							<button
+								onClick={handleLogout}
+								className="w-full flex items-center gap-3 p-3 text-red-400 hover:text-red-300 hover:bg-red-950/30 rounded-lg transition-all duration-200 font-mono text-sm"
+							>
+								<svg
+									className="w-4 h-4"
+									fill="none"
+									stroke="currentColor"
+									viewBox="0 0 24 24"
+								>
+									<path
+										strokeLinecap="round"
+										strokeLinejoin="round"
+										strokeWidth={2}
+										d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+									/>
+								</svg>
+								Sign Out
+							</button>
+						</div>
+
+						{/* Terminal-like footer */}
+						<div className="border-t border-gray-800 p-2 bg-gray-900/50">
+							<div className="flex items-center gap-2 text-xs font-mono text-gray-600">
+								<span className="text-green-400">$</span>
+								<span>whoami</span>
+								<span className="text-gray-500">→</span>
+								<span className="text-blue-400">
+									{user?.name?.firstName?.toLowerCase() || "user"}
+								</span>
+							</div>
+						</div>
+					</div>
+				</div>
+			)}
+
+			{/* Click outside to close profile modal */}
+			{isProfileOpen && (
+				<div
+					className="fixed inset-0 z-40"
+					onClick={() => setIsProfileOpen(false)}
+				></div>
+			)}
 
 			{/* Create Project Modal */}
 			{isModalOpen && (
