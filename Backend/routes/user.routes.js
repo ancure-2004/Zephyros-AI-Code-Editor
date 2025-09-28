@@ -26,7 +26,7 @@ router.post("/login",
     userController.loginController
 );
 
-router.post("/google-login", userController.googleLogin);
+router.post("/google", userController.googleLogin);
 
 router.get("/profile", authMiddleware.authUser, userController.getUserProfile);
 

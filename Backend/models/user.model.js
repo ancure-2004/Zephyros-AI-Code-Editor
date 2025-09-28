@@ -28,10 +28,6 @@ const userSchema = new mongoose.Schema({
 		type: String,
 		select: false,
 	},
-
-	googleId: {
-		type: String, // optional, only for Google login users
-	},
 });
 
 userSchema.statics.hashPassword = async function (password) {

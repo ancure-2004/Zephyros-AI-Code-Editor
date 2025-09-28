@@ -3,6 +3,8 @@ import {Github, ArrowLeft, Eye, EyeOff} from "lucide-react";
 import {Link, useNavigate} from "react-router-dom";
 import axios from "../config/axios";
 import {UserContext} from "../context/user.context";
+import {useGoogleLogin} from '@react-oauth/google';
+import { googleAuth } from "../config/api";
 
 export default function RegisterPage() {
 	const [email, setEmail] = useState("");
@@ -12,6 +14,7 @@ export default function RegisterPage() {
 	const [lastname, setLastname] = useState("");
 	const navigate = useNavigate();
 	const {setUser} = useContext(UserContext);
+	
 
 	function submitHandler(e) {
 		e.preventDefault();
@@ -32,6 +35,25 @@ export default function RegisterPage() {
 			})
 			.catch((err) => console.log(err));
 	}
+
+		const responseGoogle = async (authResult) => {
+		try{
+			if(authResult['code']){
+				const result = await googleAuth(authResult.code);
+				localStorage.setItem("token", result.data.token);
+				setUser(result.data.user);
+				navigate("/projects");
+			}
+		}catch(err){
+			console.error('Error while requestion :', err)
+		}
+	}
+ 
+	const googleLogin = useGoogleLogin({
+		onSuccess: responseGoogle,
+		onError: responseGoogle,
+		flow:'auth-code'
+	})
 
 	return (
 		<div
@@ -65,7 +87,9 @@ export default function RegisterPage() {
 
 					{/* Social Buttons */}
 					<div className="space-y-3 mb-4 animate-slideUp" style={{animationDelay: '0.3s'}}>
-						<button className="w-full flex items-center justify-center px-4 py-2 bg-[#37373d] hover:bg-[#464647] border border-[#3c3c3c] rounded text-xs text-[#cccccc] transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-blue-500/20 transform">
+						<button
+							onClick={googleLogin}
+							className="w-full flex items-center justify-center px-4 py-2 bg-[#37373d] hover:bg-[#464647] border border-[#3c3c3c] rounded text-xs text-[#cccccc] transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-blue-500/20 transform">
 							<svg className="w-3 h-3 mr-2" viewBox="0 0 24 24">
 								<path
 									fill="#4285F4"
