@@ -3,8 +3,6 @@ import {Github, ArrowLeft, Eye, EyeOff} from "lucide-react";
 import {Link, useNavigate} from "react-router-dom";
 import axios from "../config/axios";
 import {UserContext} from "../context/user.context";
-import {useGoogleLogin} from "@react-oauth/google";
-import {googleAuth} from "../config/api";
 
 export default function RegisterPage() {
 	const [email, setEmail] = useState("");
