@@ -3,8 +3,8 @@ import {Github, ArrowLeft, Eye, EyeOff} from "lucide-react";
 import {Link, useNavigate} from "react-router-dom";
 import axios from "../config/axios";
 import {UserContext} from "../context/user.context";
-import {useGoogleLogin} from '@react-oauth/google';
-import { googleAuth } from "../config/api";
+import {useGoogleLogin} from "@react-oauth/google";
+import {googleAuth} from "../config/api";
 
 export default function RegisterPage() {
 	const [email, setEmail] = useState("");
@@ -14,18 +14,17 @@ export default function RegisterPage() {
 	const [lastname, setLastname] = useState("");
 	const navigate = useNavigate();
 	const {setUser} = useContext(UserContext);
-	
 
 	function submitHandler(e) {
 		e.preventDefault();
 		axios
 			.post("/users/register", {
-				name:{
+				name: {
 					firstName: firstname,
-					lastName: lastname
+					lastName: lastname,
 				},
 				email,
-				password
+				password,
 			})
 			.then((res) => {
 				localStorage.setItem("token", res.data.token);
@@ -36,24 +35,18 @@ export default function RegisterPage() {
 			.catch((err) => console.log(err));
 	}
 
-		const responseGoogle = async (authResult) => {
-		try{
-			if(authResult['code']){
-				const result = await googleAuth(authResult.code);
-				localStorage.setItem("token", result.data.token);
-				setUser(result.data.user);
-				navigate("/projects");
-			}
-		}catch(err){
-			console.error('Error while requestion :', err)
+	// Updated Google login handler using redirect flow
+	const handleGoogleLogin = async () => {
+		try {
+			// Get auth URL from backend
+			const response = await axios.get("/users/auth/google");
+
+			// Redirect to Google OAuth (same window, no popup)
+			window.location.href = response.data.authUrl;
+		} catch (error) {
+			console.error("Error initiating Google login:", error);
 		}
-	}
- 
-	const googleLogin = useGoogleLogin({
-		onSuccess: responseGoogle,
-		onError: responseGoogle,
-		flow:'auth-code'
-	})
+	};
 
 	return (
 		<div
@@ -77,19 +70,35 @@ export default function RegisterPage() {
 				<div className="max-w-sm mx-auto w-full">
 					<div className="mb-5 animate-slideUp">
 						<div className="flex items-center mb-3">
-							<img src="./logo.png" alt="Zephyros Logo" className="h-5 w-14 animate-pulse" />
+							<img
+								src="./logo.png"
+								alt="Zephyros Logo"
+								className="h-5 w-14 animate-pulse"
+							/>
 						</div>
-						<h1 className="text-lg font-bold text-[#cccccc] mb-2 animate-slideUp" style={{animationDelay: '0.1s'}}>
+						<h1
+							className="text-lg font-bold text-[#cccccc] mb-2 animate-slideUp"
+							style={{animationDelay: "0.1s"}}
+						>
 							Create Account
 						</h1>
-						<p className="text-[#858585] text-xs animate-slideUp" style={{animationDelay: '0.2s'}}>Join and start coding</p>
+						<p
+							className="text-[#858585] text-xs animate-slideUp"
+							style={{animationDelay: "0.2s"}}
+						>
+							Join and start coding
+						</p>
 					</div>
 
 					{/* Social Buttons */}
-					<div className="space-y-3 mb-4 animate-slideUp" style={{animationDelay: '0.3s'}}>
+					<div
+						className="space-y-3 mb-4 animate-slideUp"
+						style={{animationDelay: "0.3s"}}
+					>
 						<button
-							onClick={googleLogin}
-							className="w-full flex items-center justify-center px-4 py-2 bg-[#37373d] hover:bg-[#464647] border border-[#3c3c3c] rounded text-xs text-[#cccccc] transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-blue-500/20 transform">
+							onClick={handleGoogleLogin}
+							className="w-full flex items-center justify-center px-3 py-2 bg-[#37373d] hover:bg-[#464647] border border-[#3c3c3c] rounded text-xs text-[#cccccc] transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-blue-500/20 transform"
+						>
 							<svg className="w-3 h-3 mr-2" viewBox="0 0 24 24">
 								<path
 									fill="#4285F4"
@@ -117,14 +126,21 @@ export default function RegisterPage() {
 					</div>
 
 					{/* Divider */}
-					<div className="flex items-center mb-4 animate-slideUp" style={{animationDelay: '0.4s'}}>
+					<div
+						className="flex items-center mb-4 animate-slideUp"
+						style={{animationDelay: "0.4s"}}
+					>
 						<div className="flex-1 border-t border-[#3c3c3c]"></div>
 						<span className="px-3 text-[#858585] text-xs">or</span>
 						<div className="flex-1 border-t border-[#3c3c3c]"></div>
 					</div>
 
 					{/* Form */}
-					<form onSubmit={submitHandler} className="space-y-4 animate-slideUp" style={{animationDelay: '0.5s'}}>
+					<form
+						onSubmit={submitHandler}
+						className="space-y-4 animate-slideUp"
+						style={{animationDelay: "0.5s"}}
+					>
 						{/* Name Fields */}
 						<div className="flex gap-3 transform transition-all duration-300 hover:translate-y-[-2px]">
 							<div className="flex-1">
@@ -203,7 +219,10 @@ export default function RegisterPage() {
 					</form>
 
 					{/* Footer */}
-					<div className="mt-5 text-center animate-slideUp" style={{animationDelay: '0.6s'}}>
+					<div
+						className="mt-5 text-center animate-slideUp"
+						style={{animationDelay: "0.6s"}}
+					>
 						<p className="text-[#858585] text-xs">
 							Already have an account?{" "}
 							<Link
@@ -224,7 +243,10 @@ export default function RegisterPage() {
 					alt="Register Illustration"
 					className="w-screen h-screen object-cover"
 				/>
-				<div className="absolute inset-0 bg-gradient-to-l from-transparent to-gray-900/20 animate-fadeIn" style={{animationDelay: '0.8s'}}></div>
+				<div
+					className="absolute inset-0 bg-gradient-to-l from-transparent to-gray-900/20 animate-fadeIn"
+					style={{animationDelay: "0.8s"}}
+				></div>
 			</div>
 
 			<style jsx>{`

@@ -3,8 +3,7 @@ import {Github, ArrowLeft, Eye, EyeOff} from "lucide-react";
 import {Link, useNavigate} from "react-router-dom";
 import axios from "../config/axios";
 import {UserContext} from "../context/user.context";
-import {useGoogleLogin} from '@react-oauth/google';
-import { googleAuth } from "../config/api";
+// Removed Google OAuth popup imports
 
 export default function LoginPage() {
 	const [email, setEmail] = useState("");
@@ -25,24 +24,18 @@ export default function LoginPage() {
 			.catch((err) => console.log(err.response?.data));
 	}
 
-	const responseGoogle = async (authResult) => {
-		try{
-			if(authResult['code']){
-				const result = await googleAuth(authResult.code);
-				localStorage.setItem("token", result.data.token);
-				setUser(result.data.user);
-				navigate("/projects");
-			}
-		}catch(err){
-			console.error('Error while requestion :', err)
+	// Updated Google login handler using redirect flow
+	const handleGoogleLogin = async () => {
+		try {
+			// Get auth URL from backend
+			const response = await axios.get('/users/auth/google');
+			
+			// Redirect to Google OAuth (same window, no popup)
+			window.location.href = response.data.authUrl;
+		} catch (error) {
+			console.error('Error initiating Google login:', error);
 		}
-	}
- 
-	const googleLogin = useGoogleLogin({
-		onSuccess: responseGoogle,
-		onError: responseGoogle,
-		flow:'auth-code'
-	})
+	};
 
 	return (
 		<div
@@ -77,8 +70,8 @@ export default function LoginPage() {
 					{/* Social Buttons */}
 					<div className="space-y-2 mb-3 animate-slideUp" style={{animationDelay: '0.3s'}}>
 						<button
-							onClick={googleLogin}
-							className="w-full flex items-center justify-center px-3 py-2 bg-[#37373d] hover:bg-[#464647] border border-[#3c3c3c] rounded text-xs text-[#cccccc] transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-blue-500/20 transform">
+						onClick={handleGoogleLogin}
+						className="w-full flex items-center justify-center px-3 py-2 bg-[#37373d] hover:bg-[#464647] border border-[#3c3c3c] rounded text-xs text-[#cccccc] transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-blue-500/20 transform">
 							<svg className="w-3 h-3 mr-2" viewBox="0 0 24 24">
 								<path
 									fill="#4285F4"

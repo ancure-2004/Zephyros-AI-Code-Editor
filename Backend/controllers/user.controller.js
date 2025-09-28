@@ -56,6 +56,65 @@ export const loginController = async (req, res) => {
 	}
 };
 
+export const googleAuthURL = async (req, res) => {
+	try {
+		const authUrl = oauth2Client.generateAuthUrl({
+			access_type: 'offline',
+			scope: [
+				'https://www.googleapis.com/auth/userinfo.profile',
+				'https://www.googleapis.com/auth/userinfo.email'
+			],
+			include_granted_scopes: true,
+		});
+		
+		res.json({ authUrl });
+	} catch (error) {
+		return res.status(500).json({error: error.message});
+	}
+};
+
+export const googleCallback = async (req, res) => {
+	const { code } = req.query;
+	
+	try {
+		const { tokens } = await oauth2Client.getToken(code);
+		oauth2Client.setCredentials(tokens);
+		
+		const userRes = await axios.get(
+			`https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=${tokens.access_token}`
+		);
+
+		const { email, name } = userRes.data;
+		let user = await userModel.findOne({ email });
+
+		if (!user) {
+			const nameParts = name.trim().split(" ");
+			const firstName = nameParts[0];
+			const lastName = nameParts.slice(1).join(" ") || "";
+			user = await userModel.create({
+				name: {
+					firstName,
+					lastName
+				},
+				email,
+			});
+		}
+
+		const { _id } = user;
+		const token = jwt.sign({ _id, email }, process.env.JWT_SECRET, {
+			expiresIn: "15d",
+		});
+
+		// Redirect to frontend with token
+		const frontendURL = process.env.FRONTEND_URL || 'http://localhost:5173';
+		res.redirect(`${frontendURL}/auth/success?token=${token}&user=${encodeURIComponent(JSON.stringify(user))}`);
+		
+	} catch (err) {
+		const frontendURL = process.env.FRONTEND_URL || 'http://localhost:5173';
+		res.redirect(`${frontendURL}/auth/error?error=${encodeURIComponent(err.message)}`);
+	}
+};
+
 export const googleLogin = async (req, res) => {
 
 	const {code} = req.body;

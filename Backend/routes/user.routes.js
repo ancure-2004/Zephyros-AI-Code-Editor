@@ -14,12 +14,6 @@ router.post(
     userController.createUserController
 );
 
-router.post("/register",
-    body("email").isEmail().withMessage("Invalid email"),
-    body("password").isLength({ min: 6 }).withMessage("Password must be at least 6 characters long"),
-    userController.createUserController
-);
-
 router.post("/login",
     body("email").isEmail().withMessage("Invalid email"),
     body("password").isLength({ min: 6 }).withMessage("Password must be at least 6 characters long"),
@@ -27,6 +21,10 @@ router.post("/login",
 );
 
 router.post("/google", userController.googleLogin);
+
+// New Google OAuth routes
+router.get("/auth/google", userController.googleAuthURL);
+router.get("/auth/google/callback", userController.googleCallback);
 
 router.get("/profile", authMiddleware.authUser, userController.getUserProfile);
 

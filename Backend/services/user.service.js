@@ -5,11 +5,12 @@ import {google} from 'googleapis';
 
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
+const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:3000';
 
 export const oauth2Client = new google.auth.OAuth2(
     GOOGLE_CLIENT_ID,
     GOOGLE_CLIENT_SECRET,
-    'postmessage'
+    `${BACKEND_URL}/users/auth/google/callback`
 )
 
 export const createUser = async ({
